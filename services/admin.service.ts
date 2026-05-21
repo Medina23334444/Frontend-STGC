@@ -1,59 +1,36 @@
 // services/admin.service.ts
+import { apiFetch } from '@/lib/api';
 import { UserCreate, UserUpdate } from '@/types/user';
 
 export const adminService = {
   /**
-   * Obtiene la lista completa de usuarios (requiere token ADMIN o GERENTE)
+   * Obtiene la lista completa de usuarios a través del proxy BFF.
+   * Requiere permisos de ADMIN o GERENTE_GENERAL.
    */
   getUsers: async () => {
-    const res = await fetch('/api/admin/users');
-    if (!res.ok) {
-      throw new Error('Error al cargar la lista de personal');
-    }
-    return await res.json();
+    return apiFetch('/admin/users');
   },
 
   /**
-   * Registra un nuevo usuario a través del proxy de Next.js
-
-   * @param userData Datos del formulario de registro
+   * Registra un nuevo usuario en el sistema.
+   * @param userData Datos del formulario de registro (validados por Zod).
    */
   registerUser: async (userData: UserCreate) => {
-    const res = await fetch('/api/admin/register', {
+    return apiFetch('/admin/register', {
       method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
       body: JSON.stringify(userData),
     });
-
-    if (!res.ok) {
-      const errorData = await res.json().catch(() => null);
-      throw new Error(errorData?.error || 'Error al registrar al usuario');
-    }
-
-    return await res.json();
   },
 
   /**
-   * Actualiza un usuario existente a través del proxy de Next.js
-   * @param userId El ID del usuario a modificar
-   * @param updateData Los datos a actualizar (role_name, status)
+   * Actualiza el rol o estado de un usuario existente.
+   * @param userId Identificador único del usuario.
+   * @param updateData Parámetros modificables (role_name, status).
    */
   updateUser: async (userId: string | number, updateData: UserUpdate) => {
-    const res = await fetch(`/api/admin/users/${userId}`, {
+    return apiFetch(`/admin/users/${userId}`, {
       method: 'PATCH',
-      headers: {
-        'Content-Type': 'application/json',
-      },
       body: JSON.stringify(updateData),
     });
-
-    if (!res.ok) {
-      const errorData = await res.json().catch(() => null);
-      throw new Error(errorData?.error || 'Error al actualizar al usuario');
-    }
-
-    return await res.json();
   }
 };
