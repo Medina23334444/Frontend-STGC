@@ -48,7 +48,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const logout = async () => {
     // Llamamos a nuestro puente para que destruya la cookie segura
-    await fetch('/api/auth/logout', { method: 'POST' });
+    await authService.logout();
     
     // Limpiamos todo el rastro visual de la sesión al salir
     localStorage.removeItem('stgc_user');
