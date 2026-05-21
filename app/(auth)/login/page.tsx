@@ -5,40 +5,22 @@ import { useState } from 'react';
 import { useAuth } from '@/context/AuthContext';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import * as z from 'zod';
-
-// 1. DEFINICIÓN DEL ESQUEMA DE VALIDACIÓN (Contrato de datos fuera del componente)
-const loginSchema = z.object({
-  email: z
-    .string()
-    .min(1, 'El correo electrónico es obligatorio.')
-    .email('Por favor, ingresa un correo electrónico válido.'),
-  password: z
-    .string()
-    .min(1, 'La contraseña es obligatoria.')
-    .min(6, 'La contraseña debe tener al menos 6 caracteres.'),
-});
-
-// Tipo estricto de TypeScript basado en nuestro esquema de Zod
-type LoginFormInputs = z.infer<typeof loginSchema>;
+import { loginSchema, LoginFormInputs } from '@/schemas/auth.schema'; // 🧠 Importado de la capa de reglas de negocio
 
 export default function LoginPage() {
   const { login, loading } = useAuth();
   
-  // Estado exclusivo para atrapar errores globales del servidor (ej: Failed to fetch)
   const [errorAnuncio, setErrorAnuncio] = useState<string | null>(null);
   const [showPassword, setShowPassword] = useState(false);
 
-  // 2. CONFIGURACIÓN DEL ADMINISTRADOR DEL FORMULARIO
   const {
     register,
     handleSubmit,
     formState: { errors, isSubmitting },
   } = useForm<LoginFormInputs>({
-    resolver: zodResolver(loginSchema), // Conectamos las reglas de Zod con React Hook Form
+    resolver: zodResolver(loginSchema), 
   });
 
-  // 3. PROCESADOR DE ENVÍO (Solo se ejecuta si los datos pasan las reglas de Zod)
   const alEnviarFormulario = async (datos: LoginFormInputs) => {
     setErrorAnuncio(null);
     try {
@@ -47,7 +29,6 @@ export default function LoginPage() {
       setErrorAnuncio(err.message || 'Error al conectar con el servidor.');
     }
   };
-
   return (
     <div className="bg-[#f8fafc] text-[#334155] font-sans h-screen w-screen overflow-hidden flex items-center justify-center relative select-none">
 
