@@ -1,37 +1,30 @@
 // lib/api.ts
-
 interface FetchOptions extends RequestInit {
   baseUrl?: string;
 }
 
 export async function apiFetch(endpoint: string, options: FetchOptions = {}) {
-  // Por defecto usa la URL de autenticación si no le pasamos otra en las opciones
-  const BASE_URL = options.baseUrl || process.env.NEXT_PUBLIC_AUTH_SERVICE_URL;
-
-  // Recuperamos el token guardado en el navegador (cuando el usuario inicia sesión)
-  const token = typeof window !== 'undefined' ? localStorage.getItem('stgc_token') : null;
+  // 🔥 Por defecto, todas las peticiones irán a tu propio servidor Next.js (/api)
+  const BASE_URL = options.baseUrl || '/api';
 
   const headers = new Headers(options.headers);
   headers.set('Content-Type', 'application/json');
 
-  if (token) {
-    // Inyecta de forma automática la cabecera "Bearer token" que tu backend espera
-    headers.set('Authorization', `Bearer ${token}`);
-  }
+  // MAGIA BFF: Ya no inyectamos el Authorization Header.
+  // El navegador adjunta la cookie HttpOnly automáticamente a todas las rutas '/api'
 
   const response = await fetch(`${BASE_URL}${endpoint}`, {
     ...options,
     headers,
   });
 
-  // Si el backend te bloquea temporalmente por superar las peticiones (Rate Limit / slowapi)
   if (response.status === 429) {
     throw new Error('Demasiadas solicitudes. Por favor, frena un poco e intenta más tarde.');
   }
 
   if (!response.ok) {
     const errorData = await response.json().catch(() => ({}));
-    throw new Error(errorData.detail || 'Ocurrió un error inesperado en el servidor.');
+    throw new Error(errorData.error || errorData.detail || 'Ocurrió un error inesperado en el servidor.');
   }
 
   return response.json();

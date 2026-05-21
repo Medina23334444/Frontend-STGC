@@ -3,7 +3,8 @@
 
 import { createContext, useContext, useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { UserLogin, LoginResponse } from '@/types/auth';
+import { authService } from '@/services/auth.service';
+import { UserLogin } from '@/types/auth';
 import { User } from '@/types/user';
 
 interface AuthContextType {
@@ -33,22 +34,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const login = async (credentials: UserLogin) => {
     try {
-      // 1. Llamamos a nuestro propio servidor temporal (Puente) en vez de ir directo a Python
-      const response = await fetch('/api/auth/login', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(credentials)
-      });
-
-      if (!response.ok) {
-        throw new Error('Error al iniciar sesión');
-      }
-
-     const data: LoginResponse = await response.json();
-     // 2. Guardamos solo los datos del usuario
-     localStorage.setItem('stgc_user', JSON.stringify(data.user));
-     setUser(data.user);
-     console.log("Sesión iniciada con rol:", data.user.role);
+      // Delegamos la petición a tu servicio
+      const data = await authService.login(credentials);
+      
+      localStorage.setItem('stgc_user', JSON.stringify(data.user));
+      setUser(data.user);
       router.push('/dashboard');
     } catch (error) {
       console.error("Error en el inicio de sesión:", error);
