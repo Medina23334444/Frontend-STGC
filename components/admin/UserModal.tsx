@@ -2,21 +2,33 @@
 'use client';
 
 import { useState } from 'react';
-import { adminService } from '@/services/admin.service';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { registerSchema, RegisterFormInputs } from '@/schemas/user.schema'; // <-- 1. Importas la lógica de negocio desde afuera
+import { registerSchema, RegisterFormInputs } from '@/schemas/user.schema';
+import { USER_ROLES } from '@/lib/constants/userRoles'; // ← NUEVO
+import { USER_STATUSES } from '@/lib/constants/userStatuses'; // ← NUEVO
+import { ApiError } from '@/lib/errors/ApiErrors'; // ← NUEVO
 
 interface UserModalProps {
   isOpen: boolean;
   onClose: () => void;
   onSuccess: () => void;
+  onSubmit: (datos: RegisterFormInputs) => Promise<void>; // ← NUEVO
+  isSubmitting?: boolean; 
+  error?: string;
 }
 
-export default function UserModal({ isOpen, onClose, onSuccess }: UserModalProps) {
-  const [errorGlobal, setErrorGlobal] = useState('');
+export default function UserModal({ 
+  isOpen, 
+  onClose, 
+  onSuccess,
+  onSubmit,
+  isSubmitting = false,
+  error = '',
+}: UserModalProps) {
+  const [errorGlobal, setErrorGlobal] = useState(error);
 
-  const { register, handleSubmit, reset, formState: { errors, isSubmitting } } = useForm<RegisterFormInputs>({
+  const { register, handleSubmit, reset, formState: { errors } } = useForm<RegisterFormInputs>({
     resolver: zodResolver(registerSchema),
     defaultValues: {
       first_name: '',
@@ -33,19 +45,23 @@ export default function UserModal({ isOpen, onClose, onSuccess }: UserModalProps
   const alEnviar = async (datos: RegisterFormInputs) => {
     setErrorGlobal('');
     try {
-      await adminService.registerUser(datos);
-      reset(); 
+      await onSubmit(datos);
+      reset();
       onSuccess();
       onClose();
-    } catch (err: any) {
-      setErrorGlobal(err.message);
+    } catch (err) {
+      if (err instanceof ApiError) {
+        setErrorGlobal(err.message);
+      } else if (err instanceof Error) {
+        setErrorGlobal(err.message);
+      } else {
+        setErrorGlobal('Error desconocido');
+      }
     }
   };
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4 sm:p-6">
-      
-      {/* 2. DISEÑO OPTIMIZADO: max-w-lg y max-h-[90vh] para que no se salga de la pantalla */}
       <div className="bg-white rounded-2xl shadow-xl w-full max-w-lg flex flex-col max-h-[90vh] animate-in fade-in zoom-in-95 duration-200">
         
         <div className="flex justify-between items-center p-5 border-b border-slate-100 bg-slate-50/50 shrink-0">
@@ -55,7 +71,6 @@ export default function UserModal({ isOpen, onClose, onSuccess }: UserModalProps
           </button>
         </div>
 
-        {/* 3. overflow-y-auto: Permite scroll interno si la pantalla es muy pequeña */}
         <div className="p-5 overflow-y-auto custom-scrollbar">
           {errorGlobal && (
             <div className="flex items-center gap-2 bg-red-50 text-red-600 p-3 rounded-lg mb-4 border border-red-100 text-sm">
@@ -144,9 +159,9 @@ export default function UserModal({ isOpen, onClose, onSuccess }: UserModalProps
                   {...register('role_name')}
                   className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-sky-500 outline-none text-sm"
                 >
-                  <option value="ADMIN">Administrador</option>
-                  <option value="GERENTE_GENERAL">Gerente</option>
-                  <option value="OPERADOR">Operador</option>
+                  {USER_ROLES.map(role => (
+                    <option key={role.value} value={role.value}>{role.label}</option>
+                  ))}
                 </select>
               </div>
 
@@ -156,8 +171,9 @@ export default function UserModal({ isOpen, onClose, onSuccess }: UserModalProps
                   {...register('status')}
                   className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-sky-500 outline-none text-sm"
                 >
-                  <option value="ACTIVO">Activo</option>
-                  <option value="INACTIVO">Inactivo</option>
+                  {USER_STATUSES.map(status => (
+                    <option key={status.value} value={status.value}>{status.label}</option>
+                  ))}
                 </select>
               </div>
             </div>
