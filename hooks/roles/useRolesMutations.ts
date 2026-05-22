@@ -5,8 +5,6 @@ import { createApiError } from '@/lib/errors/ApiErrors';
 import { Role, RoleCreate, RoleUpdate } from '@/types/rol'; 
 
 export function useRolesMutations(setRoles: React.Dispatch<React.SetStateAction<Role[]>>) {
-  
-  // ✅ CREATE
   const createRole = useCallback(async (data: RoleCreate) => {
     try {
       const newRole = await rolesService.create(data);
@@ -16,8 +14,6 @@ export function useRolesMutations(setRoles: React.Dispatch<React.SetStateAction<
       throw createApiError(err.statusCode || 500, err);
     }
   }, [setRoles]);
-
-  // ✅ UPDATE (NUEVO)
   const updateRole = useCallback(async (id: string, data: RoleUpdate) => {
     try {
       const updatedRole = await rolesService.update(id, data);
@@ -27,8 +23,6 @@ export function useRolesMutations(setRoles: React.Dispatch<React.SetStateAction<
       throw createApiError(err.statusCode || 500, err);
     }
   }, [setRoles]);
-
-  // ✅ DELETE (NUEVO)
   const deleteRole = useCallback(async (id: string) => {
     try {
       await rolesService.delete(id);
