@@ -1,11 +1,12 @@
 // hooks/roles/useRolesFetch.ts
 import { useState, useCallback } from 'react';
-import { rolesService} from '@/services/rol.service';
+import { rolesService } from '@/services/rol.service';
 import { permissionsService } from '@/services/permission.service';
 import { Role } from '@/types/rol';
 import { Permission } from '@/types/permission';
 import { ApiError, createApiError } from '@/lib/errors/ApiErrors';
-import { RoleArraySchema, PermissionArraySchema } from '@/schemas/roles.schema';
+import { RoleArraySchema } from '@/schemas/roles.schema';
+import { PermissionArraySchema } from '@/schemas/permission.schema'; 
 import { z } from 'zod';
 
 export function useRolesFetch() {
@@ -21,8 +22,11 @@ export function useRolesFetch() {
         rolesService.getAll(),
         permissionsService.getAll()
       ]);
+      
+      // ✅ Zod ya hace todo el trabajo. Si vienen nulos, el tipo z.infer lo acepta.
       setRoles(RoleArraySchema.parse(rolesData));
       setPermissions(PermissionArraySchema.parse(permsData));
+      
     } catch (err) {
       if (err instanceof ApiError) setError(err);
       else if (err instanceof z.ZodError) setError(new ApiError(422, 'Error de formato'));

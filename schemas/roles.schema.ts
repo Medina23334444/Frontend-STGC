@@ -1,6 +1,7 @@
 // schemas/role.schema.ts
 import { z } from 'zod';
-import { PermissionSchema } from './permission.schema'; 
+import { PermissionSchema } from './permission.schema';
+ 
 
 export const RoleSchema = z.object({
   id: z.string().uuid().or(z.string()),
