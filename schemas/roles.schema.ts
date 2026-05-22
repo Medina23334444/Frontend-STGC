@@ -8,9 +8,6 @@ export const RoleSchema = z.object({
   name: z.string().min(1, 'El nombre es obligatorio').max(50),
   description: z.string().nullable().optional(),
   permissions: z.array(PermissionSchema).default([]), 
-  isActive: z.boolean().default(true).optional(),
-  createdAt: z.coerce.date().optional(), 
-  updatedAt: z.coerce.date().optional(),
 });
 
 export const RoleArraySchema = z.array(RoleSchema);
