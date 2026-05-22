@@ -3,6 +3,7 @@
 
 import UserModal from '@/components/admin/UserModal';
 import { useUsers } from '@/hooks/useUsers';
+import { useUsersHandlers } from '@/hooks/useUsersHandlers'; // ✅ NUEVO
 import { ValidationError } from '@/lib/errors/ApiErrors';
 
 export default function AdminUsersPage() {
@@ -26,30 +27,32 @@ export default function AdminUsersPage() {
     closeCreateModal,
   } = useUsers();
 
+  // ✅ NUEVO: Obtener handlers
+  const { handleCreateUser } = useUsersHandlers();
+
   if (error) {
-  return (
-    <div className="bg-red-50 p-4 rounded border border-red-200">
-      <p className="text-red-700 font-semibold">Error</p>
+    return (
+      <div className="bg-red-50 p-4 rounded border border-red-200">
+        <p className="text-red-700 font-semibold">Error</p>
+        <p className="text-red-600">{error.message}</p>
 
-      <p className="text-red-600">{error.message}</p>
-
-      {error instanceof ValidationError && (
-        <ul className="mt-2 text-red-600 list-disc ml-5">
-          {Object.entries(error.validationErrors).map(
-            ([field, msgs]) => (
-              <li key={field}>
-                {field}:{' '}
-                {Array.isArray(msgs)
-                  ? msgs.join(', ')
-                  : String(msgs)}
-              </li>
-            )
-          )}
-        </ul>
-      )}
-    </div>
-  );
-}
+        {error instanceof ValidationError && (
+          <ul className="mt-2 text-red-600 list-disc ml-5">
+            {Object.entries(error.validationErrors).map(
+              ([field, msgs]) => (
+                <li key={field}>
+                  {field}:{' '}
+                  {Array.isArray(msgs)
+                    ? msgs.join(', ')
+                    : String(msgs)}
+                </li>
+              )
+            )}
+          </ul>
+        )}
+      </div>
+    );
+  }
 
   return (
     <div className="p-6 md:p-10 space-y-6 relative z-10 flex-1">
@@ -65,7 +68,6 @@ export default function AdminUsersPage() {
             <h1 className="text-2xl font-bold text-slate-800">
               Gestionar Personal
             </h1>
-
             <p className="text-sm text-slate-500 mt-1">
               Administra los accesos y roles del equipo de trabajo.
             </p>
@@ -78,7 +80,6 @@ export default function AdminUsersPage() {
             <span className="material-symbols-outlined text-lg">
               add
             </span>
-
             Nuevo Empleado
           </button>
         </div>
@@ -92,15 +93,12 @@ export default function AdminUsersPage() {
                   <th className="px-6 py-4 font-semibold">
                     Usuario / Email
                   </th>
-
                   <th className="px-6 py-4 font-semibold">
                     Rol
                   </th>
-
                   <th className="px-6 py-4 font-semibold text-center">
                     Estado
                   </th>
-
                   <th className="px-6 py-4 font-semibold text-center">
                     Acciones
                   </th>
@@ -138,12 +136,10 @@ export default function AdminUsersPage() {
                           <div className="h-9 w-9 rounded-full bg-slate-100 flex items-center justify-center text-slate-600 font-bold uppercase border border-slate-200">
                             {u.email.charAt(0)}
                           </div>
-
                           <div>
                             <p className="font-medium text-slate-700">
                               {formatUserName(u)}
                             </p>
-
                             <p className="text-sm text-slate-500">
                               {u.email}
                             </p>
@@ -170,7 +166,6 @@ export default function AdminUsersPage() {
                               u.status
                             )}`}
                           />
-
                           {getStatusLabel(u.status)}
                         </span>
                       </td>
@@ -194,11 +189,12 @@ export default function AdminUsersPage() {
           </div>
         </div>
 
-        {/* Modal Crear Usuario */}
+        {/* ✅ Modal Crear Usuario - CON onSubmit correcto */}
         <UserModal
           isOpen={isCreateModalOpen}
           onClose={closeCreateModal}
           onSuccess={fetchUsers}
+          onSubmit={handleCreateUser} // ✅ AQUÍ está el handler
         />
       </div>
     </div>

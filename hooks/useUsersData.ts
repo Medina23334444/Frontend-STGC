@@ -2,7 +2,27 @@
 import { useState, useCallback } from 'react';
 import { User, UserCreate, UserUpdate } from '@/types/user';
 import { adminService } from '@/services/admin.service';
-import { ApiError } from '../lib/errors/ApiErrors';
+import { ApiError } from '@/lib/errors/ApiErrors';
+import { z } from 'zod';
+
+const UserArraySchema = z.array(
+  z.object({
+    id: z.string(),
+    email: z.string().email(),
+    first_name: z.string().nullable().optional(),
+    last_name: z.string().nullable().optional(),
+    identifier: z.string().nullable().optional(),
+    phone_number: z.string().nullable().optional(),
+    role: z.object({
+      id: z.string(),
+      name: z.string(),
+      description: z.string().optional(),
+    }).optional(),
+    status: z.enum(['ACTIVO', 'INACTIVO', 'SUSPENDIDO', 'PENDIENTE']),
+    suspended_from: z.string().nullable().optional(),
+    suspended_until: z.string().nullable().optional(),
+  })
+);
 
 interface UseUsersDataReturn {
   users: User[];
@@ -27,13 +47,31 @@ export function useUsersData(): UseUsersDataReturn {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<ApiError | null>(null);
 
-  // Fetch users
+  // ✅ CAMBIO: Agregar validación con Zod
   const fetchUsers = useCallback(async () => {
     setLoading(true);
     setError(null);
     try {
-      const data = await adminService.getUsers();
-      setUsers(data);
+      const rawData = await adminService.getUsers();
+      
+      // ✅ NUEVO: Validar datos antes de guardar
+      try {
+        const validUsers = UserArraySchema.parse(rawData);
+        // Type assertion because Zod schema may have optional role while our User type
+        // expects a RoleOut. We assert here after validation to satisfy TS.
+        setUsers(validUsers as unknown as User[]);
+      } catch (validationError) {
+        if (validationError instanceof z.ZodError) {
+          const apiError = new ApiError(
+            422,
+            'Los datos recibidos no cumplen el formato esperado'
+          );
+          setError(apiError);
+          console.error('Validation error:', validationError.issues);
+          throw apiError;
+        }
+        throw validationError;
+      }
     } catch (err) {
       const apiError = err instanceof ApiError ? err : new ApiError(0, 'Error desconocido');
       setError(apiError);

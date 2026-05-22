@@ -1,14 +1,13 @@
 // hooks/useUsersFormatting.ts
 import { useMemo } from 'react';
-import { User, UserStatus } from '../types/user';
+import { User, UserStatus } from '@/types/user';
 import {
   getUserStatusBadge,
   getUserStatusDot,
   getUserStatusLabel,
   USER_STATUS_CONFIG,
-} from '../lib/constants/userStatusStyles';
-
-import '../lib/errors/ApiErrors';
+} from '@/lib/constants/userStatusStyles';
+import { USER_ROLES } from '@/lib/constants/userRoles';
 
 interface UseUsersFormattingReturn {
   getStatusBadge: (status: UserStatus) => string;
@@ -17,7 +16,7 @@ interface UseUsersFormattingReturn {
   formatUserName: (user: User) => string;
   formatUserEmail: (email: string) => string;
   getRoleLabel: (role: string) => string;
-  getAllStatusOptions: () => Array<{ value: UserStatus; label: string }>;
+  getAllStatusOptions: Array<{ value: UserStatus; label: string }>; // ✅ CAMBIO: Quitar ()
 }
 
 /**
@@ -44,21 +43,14 @@ export function useUsersFormatting(): UseUsersFormattingReturn {
   };
 
   const getRoleLabel = (role: string) => {
-    const roleLabels: Record<string, string> = {
-      'ADMIN': 'Administrador',
-      'GERENTE_GENERAL': 'Gerente General',
-      'OPERADOR': 'Operador',
-    };
-    return roleLabels[role] || role;
+    return USER_ROLES.find(r => r.value === role)?.label || role;
   };
 
-  const getAllStatusOptions = useMemo(() => {
-    return (): Array<{ value: UserStatus; label: string }> => {
-      return Object.entries(USER_STATUS_CONFIG).map(([value, config]) => ({
-        value: value as UserStatus,
-        label: config.label,
-      }));
-    };
+  const getAllStatusOptions = useMemo((): Array<{ value: UserStatus; label: string }> => {
+    return Object.entries(USER_STATUS_CONFIG).map(([value, config]) => ({
+      value: value as UserStatus,
+      label: config.label,
+    }));
   }, []);
 
   return {
