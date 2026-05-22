@@ -16,5 +16,5 @@ export interface TokenResponse {
 export interface LoginResponse {
   access_token: string;
   token_type: string;
-  user: User;  // ← La respuesta del servidor incluye el usuario
+  user: User;  
 }
