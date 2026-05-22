@@ -4,10 +4,10 @@ import { cookies } from 'next/headers';
 export async function POST(req: Request) {
   try {
     const body = await req.json();
-    const baseUrl = process.env.NEXT_PUBLIC_AUTH_SERVICE_URL;
+    const baseUrl = process.env.AUTH_SERVICE_URL; // ✅ Seguridad: Variable de entorno protegida en el servidor
 
     if (!baseUrl) {
-      throw new Error('La variable de entorno NEXT_PUBLIC_AUTH_SERVICE_URL no está configurada');
+      throw new Error('La variable de entorno AUTH_SERVICE_URL no está configurada');
     }
 
     // 1. Extraer la cookie HttpOnly que Next.js guardó durante el login

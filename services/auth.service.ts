@@ -1,24 +1,29 @@
 // services/auth.service.ts
 import { apiFetch } from '@/lib/api';
 import { UserLogin, LoginResponse } from '@/types/auth';
+import { ApiError } from '@/lib/errors/ApiErrors';
 
 export const authService = {
-  /**
-   * Envía las credenciales a nuestro puente BFF en Next.js (/api/auth/login)
-   */
   async login(credentials: UserLogin): Promise<LoginResponse> {
-    return apiFetch('/auth/login', {
-      method: 'POST',
-      body: JSON.stringify(credentials),
-    });
+    try {
+      return await apiFetch('/auth/login', {
+        method: 'POST',
+        body: JSON.stringify(credentials),
+      });
+    } catch (error) {
+      if (error instanceof ApiError) throw error;
+      throw new ApiError(0, 'Error al iniciar sesión');
+    }
   },
 
-  /**
-   * Destruye la sesión llamando a nuestro puente BFF
-   */
   async logout(): Promise<void> {
-    return apiFetch('/auth/logout', {
-      method: 'POST',
-    });
+    try {
+      return await apiFetch('/auth/logout', {
+        method: 'POST',
+      });
+    } catch (error) {
+      if (error instanceof ApiError) throw error;
+      throw new ApiError(0, 'Error al cerrar sesión');
+    }
   }
 };

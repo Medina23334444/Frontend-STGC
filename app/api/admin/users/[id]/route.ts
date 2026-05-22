@@ -5,10 +5,10 @@ export async function PATCH(req: Request, { params }: { params: Promise<{ id: st
   try {
     const { id } = await params;
     const body = await req.json();
-    const baseUrl = process.env.NEXT_PUBLIC_AUTH_SERVICE_URL;
+    const baseUrl = process.env.AUTH_SERVICE_URL; // ✅ Seguridad: Variable de entorno protegida en el servidor
 
     if (!baseUrl) {
-      throw new Error('La variable de entorno NEXT_PUBLIC_AUTH_SERVICE_URL no está configurada');
+      throw new Error('La variable de entorno AUTH_SERVICE_URL no está configurada');
     }
 
     const cookieStore = await cookies();

@@ -1,31 +1,48 @@
 // lib/api.ts
+import { ApiError, createApiError, NetworkError } from '@/lib/errors/ApiErrors';
+
 interface FetchOptions extends RequestInit {
   baseUrl?: string;
 }
 
 export async function apiFetch(endpoint: string, options: FetchOptions = {}) {
-  // 🔥 Por defecto, todas las peticiones irán a tu propio servidor Next.js (/api)
   const BASE_URL = options.baseUrl || '/api';
 
   const headers = new Headers(options.headers);
   headers.set('Content-Type', 'application/json');
 
-  // MAGIA BFF: Ya no inyectamos el Authorization Header.
-  // El navegador adjunta la cookie HttpOnly automáticamente a todas las rutas '/api'
+  try {
+    const response = await fetch(`${BASE_URL}${endpoint}`, {
+      ...options,
+      headers,
+    });
 
-  const response = await fetch(`${BASE_URL}${endpoint}`, {
-    ...options,
-    headers,
-  });
+    // Obtener el body como JSON primero
+    let data: any = {};
+    try {
+      data = await response.json();
+    } catch {
+      // Si no es JSON válido, continuar sin data
+    }
 
-  if (response.status === 429) {
-    throw new Error('Demasiadas solicitudes. Por favor, frena un poco e intenta más tarde.');
+    // Manejar respuestas no exitosas
+    if (!response.ok) {
+      throw createApiError(response.status, data);
+    }
+
+    return data;
+  } catch (error) {
+    // Si ya es un ApiError, relanzarlo
+    if (error instanceof Error && error.name?.includes('Error')) {
+      throw error;
+    }
+
+    // Si es error de red
+    if (error instanceof TypeError) {
+      throw new NetworkError();
+    }
+
+    // Error desconocido
+    throw new ApiError(0, 'Error desconocido.');
   }
-
-  if (!response.ok) {
-    const errorData = await response.json().catch(() => ({}));
-    throw new Error(errorData.error || errorData.detail || 'Ocurrió un error inesperado en el servidor.');
-  }
-
-  return response.json();
 }

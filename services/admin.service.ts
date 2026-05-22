@@ -1,36 +1,42 @@
+// Antes: ✅ Ya está bien, solo actualizar tipos de retorno
+// Después: Agregar mejor manejo de errores
+
 // services/admin.service.ts
 import { apiFetch } from '@/lib/api';
-import { UserCreate, UserUpdate } from '@/types/user';
+import { UserCreate, UserUpdate, User } from '@/types/user';
+import { ApiError } from '@/lib/errors/ApiErrors';
 
 export const adminService = {
-  /**
-   * Obtiene la lista completa de usuarios a través del proxy BFF.
-   * Requiere permisos de ADMIN o GERENTE_GENERAL.
-   */
-  getUsers: async () => {
-    return apiFetch('/admin/users');
+  async getUsers(): Promise<User[]> {
+    try {
+      return await apiFetch('/admin/users');
+    } catch (error) {
+      if (error instanceof ApiError) throw error;
+      throw new ApiError(0, 'Error al obtener usuarios');
+    }
   },
 
-  /**
-   * Registra un nuevo usuario en el sistema.
-   * @param userData Datos del formulario de registro (validados por Zod).
-   */
-  registerUser: async (userData: UserCreate) => {
-    return apiFetch('/admin/register', {
-      method: 'POST',
-      body: JSON.stringify(userData),
-    });
+  async registerUser(userData: UserCreate): Promise<User> {
+    try {
+      return await apiFetch('/admin/register', {
+        method: 'POST',
+        body: JSON.stringify(userData),
+      });
+    } catch (error) {
+      if (error instanceof ApiError) throw error;
+      throw new ApiError(0, 'Error al registrar usuario');
+    }
   },
 
-  /**
-   * Actualiza el rol o estado de un usuario existente.
-   * @param userId Identificador único del usuario.
-   * @param updateData Parámetros modificables (role_name, status).
-   */
-  updateUser: async (userId: string | number, updateData: UserUpdate) => {
-    return apiFetch(`/admin/users/${userId}`, {
-      method: 'PATCH',
-      body: JSON.stringify(updateData),
-    });
-  }
+  async updateUser(userId: string | number, updateData: UserUpdate): Promise<User> {
+    try {
+      return await apiFetch(`/admin/users/${userId}`, {
+        method: 'PATCH',
+        body: JSON.stringify(updateData),
+      });
+    } catch (error) {
+      if (error instanceof ApiError) throw error;
+      throw new ApiError(0, 'Error al actualizar usuario');
+    }
+  },
 };

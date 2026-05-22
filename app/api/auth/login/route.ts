@@ -3,7 +3,7 @@ import { NextResponse } from 'next/server';
 export async function POST(req: Request) {
   try {
     const body = await req.json();
-    const baseUrl = process.env.NEXT_PUBLIC_AUTH_SERVICE_URL;
+    const baseUrl = process.env.AUTH_SERVICE_URL; // ✅ Seguridad: Variable de entorno protegida en el servidor
 
     // 1. Enviar credenciales al backend de Python
     const loginRes = await fetch(`${baseUrl}/auth/login`, {

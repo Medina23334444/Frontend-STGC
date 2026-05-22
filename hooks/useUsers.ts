@@ -1,51 +1,53 @@
 // hooks/useUsers.ts
-import { useState, useEffect } from 'react';
-import { adminService } from '@/services/admin.service';
+import { useEffect } from 'react';
+import { useUsersData } from './useUsersData';
+import { useUsersModals } from './useUsersModals';
+import { useUsersFormatting } from './useUsersFormatting';
 
+/**
+ * Hook principal que compone todos los hooks especializados
+ * Permite backward compatibility si algo ya usa este hook
+ */
 export function useUsers() {
-  const [users, setUsers] = useState<any[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [isModalOpen, setIsModalOpen] = useState(false);
+  const data = useUsersData();
+  const modals = useUsersModals();
+  const formatting = useUsersFormatting();
 
-  const fetchUsers = async () => {
-    setLoading(true);
-    try {
-      const data = await adminService.getUsers();
-      setUsers(data);
-    } catch (error) {
-      console.error(error);
-    } finally {
-      setLoading(false);
-    }
-  };
-
+  // Fetch users al montar el componente
   useEffect(() => {
-    fetchUsers();
+    data.fetchUsers();
   }, []);
 
-  const getStatusBadge = (status: string) => {
-    const styles: Record<string, string> = {
-      'ACTIVO': 'bg-emerald-50 text-emerald-700 border-emerald-200',
-      'INACTIVO': 'bg-rose-50 text-rose-700 border-rose-200',
-    };
-    return styles[status] || 'bg-slate-50 text-slate-700 border-slate-200';
-  };
-
-  const getStatusDot = (status: string) => {
-    const styles: Record<string, string> = {
-      'ACTIVO': 'bg-emerald-500',
-      'INACTIVO': 'bg-rose-500',
-    };
-    return styles[status] || 'bg-slate-500';
-  };
-
   return {
-    users,
-    loading,
-    isModalOpen,
-    setIsModalOpen,
-    fetchUsers,
-    getStatusBadge,
-    getStatusDot,
+    // Data
+    users: data.users,
+    loading: data.loading,
+    error: data.error,
+    fetchUsers: data.fetchUsers,
+    createUser: data.createUser,
+    updateUser: data.updateUser,
+    deleteUser: data.deleteUser,
+
+    // Modals
+    isCreateModalOpen: modals.isCreateModalOpen,
+    openCreateModal: modals.openCreateModal,
+    closeCreateModal: modals.closeCreateModal,
+    isEditModalOpen: modals.isEditModalOpen,
+    userToEdit: modals.userToEdit,
+    openEditModal: modals.openEditModal,
+    closeEditModal: modals.closeEditModal,
+    isDeleteModalOpen: modals.isDeleteModalOpen,
+    userToDelete: modals.userToDelete,
+    openDeleteModal: modals.openDeleteModal,
+    closeDeleteModal: modals.closeDeleteModal,
+
+    // Formatting
+    getStatusBadge: formatting.getStatusBadge,
+    getStatusDot: formatting.getStatusDot,
+    getStatusLabel: formatting.getStatusLabel,
+    formatUserName: formatting.formatUserName,
+    formatUserEmail: formatting.formatUserEmail,
+    getRoleLabel: formatting.getRoleLabel,
+    getAllStatusOptions: formatting.getAllStatusOptions,
   };
 }
