@@ -1,6 +1,5 @@
 import * as z from 'zod';
 
-// 1. DEFINICIÓN DEL ESQUEMA DE VALIDACIÓN
 export const LoteSchema = z.object({
   codigoLote: z
     .string()
