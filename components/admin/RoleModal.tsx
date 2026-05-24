@@ -26,7 +26,6 @@ export default function RoleModal({
   handleSubmit,
   errors,
   isSubmitting,
-  apiError,
   currentPermissions,
   togglePermission,
   handleFormSubmit,
@@ -54,13 +53,6 @@ export default function RoleModal({
 
         {/* Body */}
         <div className="p-5 overflow-y-auto custom-scrollbar">
-
-          {apiError && (
-            <div className="flex items-center gap-2 bg-red-50 text-red-600 p-3 rounded-lg mb-4 border border-red-100 text-sm">
-              <span className="material-symbols-outlined text-lg">error</span>
-              <p>{apiError}</p>
-            </div>
-          )}
 
           <form onSubmit={handleSubmit(handleFormSubmit as Parameters<typeof handleSubmit>[0])} className="space-y-3">
 

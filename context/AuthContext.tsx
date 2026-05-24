@@ -18,7 +18,6 @@ interface AuthContextType {
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
-// Permite inyectar storage personalizado (testing, etc)
 interface StorageAdapter {
   getItem(key: string): string | null;
   setItem(key: string, value: string): void;

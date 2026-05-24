@@ -14,17 +14,14 @@ export default function DashboardLayout({
   const router = useRouter();
   const pathname = usePathname();
   
-  // Estado para controlar el menú desplegable en móviles
   const [menuOpen, setMenuOpen] = useState(false);
 
   useEffect(() => {
-    // Filtro de seguridad: Si no hay token, rebota al Login
     if (!loading && !user) {
    router.push('/login');
   }
   }, [user, loading, router]);
 
-  // Cierra automáticamente el menú móvil cuando el usuario cambia de página
   useEffect(() => {
     setMenuOpen(false);
   }, [pathname]);
@@ -52,14 +49,11 @@ export default function DashboardLayout({
   return (
     <div className="min-h-screen bg-slate-50 text-slate-700 font-sans flex flex-col md:flex-row">
       
-      {/* BARRA LATERAL GLOBAL */}
       <aside className="w-full md:w-64 bg-white border-b md:border-b-0 md:border-r border-slate-200 p-4 md:p-6 flex flex-col justify-between shadow-sm z-20">
         
-        {/* Contenedor Superior: Logo + Botón Hamburguesa */}
         <div className="flex flex-col space-y-6 md:space-y-8">
           <div className="flex items-center justify-between md:block">
             
-            {/* Identificador de la Finca */}
             <div className="flex items-center gap-3">
               <div className="h-10 w-10 rounded-xl bg-slate-950 flex items-center justify-center text-white font-bold">☕</div>
               <div>
@@ -68,7 +62,6 @@ export default function DashboardLayout({
               </div>
             </div>
 
-            {/* Botón Hamburguesa (Solo visible en móviles) */}
             <button 
               onClick={() => setMenuOpen(!menuOpen)}
               className="md:hidden flex items-center justify-center p-2 rounded-xl text-slate-600 hover:bg-slate-100 active:scale-95 transition cursor-pointer"
@@ -80,7 +73,6 @@ export default function DashboardLayout({
             </button>
           </div>
 
-          {/* Bloque de Navegación: Se oculta o muestra en móviles según el estado */}
           <nav className={`${menuOpen ? 'block' : 'hidden'} md:block space-y-1.5 transition-all duration-200`}>
             <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider px-3 mb-2">Módulos</p>
             
@@ -124,8 +116,6 @@ export default function DashboardLayout({
             
           </nav>
         </div>
-
-        {/* Botón de Cerrar Sesión: También se acopla al colapso móvil */}
         <div className={`${menuOpen ? 'block' : 'hidden'} md:block mt-6 md:mt-0`}>
           <button 
             onClick={logout} 
@@ -138,7 +128,6 @@ export default function DashboardLayout({
 
       </aside>
 
-      {/* ÁREA DE CONTENIDO DINÁMICO */}
       <main className="flex-1 flex flex-col overflow-y-auto relative">
         {children}
       </main>

@@ -3,11 +3,9 @@ import { useState, useCallback } from 'react';
 import { Role } from '@/types/rol'; 
 
 export function useRolesModals() {
-  // Estados para Crear/Editar
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [roleToEdit, setRoleToEdit] = useState<Role | null>(null);
 
-  // Estados para Eliminar
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [roleToDelete, setRoleToDelete] = useState<Role | null>(null);
 

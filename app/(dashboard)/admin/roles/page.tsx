@@ -5,9 +5,9 @@ import { PageBackground } from '@/components/shared/PageBackground';
 import { PageHeader } from '@/components/shared/PageHeader';
 import { RolesTable } from '@/components/admin/RolesTable';
 import RoleModal from '@/components/admin/RoleModal'; 
-import DeleteRoleConfirmModal from '@/components/admin/DeleteRoleConfirmModal'; // NUEVO
+import DeleteRoleConfirmModal from '@/components/admin/DeleteRoleConfirmModal';
 import { useRoles } from '@/hooks/roles/useRoles';
-import { RoleCreate, RoleUpdate } from '@/types/rol'; // NUEVO
+import { RoleCreate, RoleUpdate } from '@/types/rol'; 
 
 export default function RolesPage() {
   const { 
@@ -28,13 +28,10 @@ export default function RolesPage() {
     handleDeleteRole,
   } = useRoles();
 
-  // Función envoltorio para decidir si crear o actualizar
   const onSubmitRole = async (data: RoleCreate | RoleUpdate) => {
     if (roleToEdit) {
-      // Estamos editando
       await handleEditRole(roleToEdit.id, data);
     } else {
-      // Estamos creando
       await handleCreateRole(data);
     }
   };
@@ -64,7 +61,7 @@ export default function RolesPage() {
           onClose={closeModal} 
           onSubmit={onSubmitRole} 
           availablePermissions={permissions} 
-          initialData={roleToEdit} // <--- MUY IMPORTANTE PARA LA EDICIÓN
+          initialData={roleToEdit} 
         />
 
         {/* Modal de Eliminar */}

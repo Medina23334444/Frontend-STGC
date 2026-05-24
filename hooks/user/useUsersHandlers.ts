@@ -1,7 +1,9 @@
-// hooks/useUsersHandlers.ts
+// hooks/user/useUsersHandlers.ts
 import { useCallback } from 'react';
 import { RegisterFormInputs } from '../../schemas/user.schema';
 import { useUsersData } from './useUsersData';
+import { toast } from 'sonner';
+import { ApiError } from '@/lib/errors/ApiErrors';
 
 export function useUsersHandlers() {
   const { createUser, updateUser, deleteUser } = useUsersData();
@@ -9,8 +11,18 @@ export function useUsersHandlers() {
   const handleCreateUser = useCallback(async (datos: RegisterFormInputs) => {
     try {
       await createUser(datos);
+      toast.success('Usuario creado exitosamente');
     } catch (error) {
       console.error('Error creando usuario:', error);
+      
+      if (error instanceof ApiError) {
+        toast.error(error.message);
+      } else if (error instanceof Error) {
+        toast.error(error.message); 
+      } else {
+        toast.error('Ocurrió un error al crear el usuario'); 
+      }
+      
       throw error;
     }
   }, [createUser]);
@@ -18,8 +30,18 @@ export function useUsersHandlers() {
   const handleEditUser = useCallback(async (userId: string, datos: RegisterFormInputs) => {
     try {
       await updateUser(userId, datos);
+      toast.success('Usuario actualizado exitosamente');
     } catch (error) {
       console.error('Error editando usuario:', error);
+      
+      if (error instanceof ApiError) {
+        toast.error(error.message);
+      } else if (error instanceof Error) {
+        toast.error(error.message); 
+      } else {
+        toast.error('Ocurrió un error al actualizar el usuario'); 
+      }
+      
       throw error;
     }
   }, [updateUser]);
@@ -27,8 +49,18 @@ export function useUsersHandlers() {
   const handleDeleteUser = useCallback(async (userId: string) => {
     try {
       await deleteUser(userId);
+      toast.success('Usuario eliminado exitosamente');
     } catch (error) {
       console.error('Error eliminando usuario:', error);
+      
+      if (error instanceof ApiError) {
+        toast.error(error.message);
+      } else if (error instanceof Error) {
+        toast.error(error.message); 
+      } else {
+        toast.error('Ocurrió un error al eliminar el usuario'); 
+      }
+      
       throw error;
     }
   }, [deleteUser]);

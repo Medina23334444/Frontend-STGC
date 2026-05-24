@@ -8,7 +8,7 @@ import { z } from 'zod';
 const UserArraySchema = z.array(
   z.object({
     id: z.string(),
-    email: z.string().email(),
+    email: z.string().check(z.email()),
     first_name: z.string().nullable().optional(),
     last_name: z.string().nullable().optional(),
     identifier: z.string().nullable().optional(),

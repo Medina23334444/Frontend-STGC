@@ -1,8 +1,5 @@
 // lib/errors/ApiErrors.ts
 
-/**
- * Clase base para errores de API
- */
 export class ApiError extends Error {
   constructor(
     public statusCode: number,
@@ -11,12 +8,10 @@ export class ApiError extends Error {
   ) {
     super(message);
     this.name = 'ApiError';
+    Object.setPrototypeOf(this, ApiError.prototype);
   }
 }
 
-/**
- * Error de autenticación (401)
- */
 export class UnauthorizedError extends ApiError {
   constructor(message = 'Sesión expirada. Por favor, inicia sesión nuevamente.') {
     super(401, message);
@@ -24,9 +19,6 @@ export class UnauthorizedError extends ApiError {
   }
 }
 
-/**
- * Error de permisos (403)
- */
 export class ForbiddenError extends ApiError {
   constructor(message = 'No tienes permisos para acceder a este recurso.') {
     super(403, message);
@@ -34,9 +26,6 @@ export class ForbiddenError extends ApiError {
   }
 }
 
-/**
- * Recurso no encontrado (404)
- */
 export class NotFoundError extends ApiError {
   constructor(message = 'El recurso solicitado no existe.') {
     super(404, message);
@@ -44,9 +33,6 @@ export class NotFoundError extends ApiError {
   }
 }
 
-/**
- * Error de validación (422)
- */
 export class ValidationError extends ApiError {
   constructor(public validationErrors: Record<string, string[]> = {}) {
     super(422, 'Error de validación.');
@@ -64,9 +50,7 @@ export class ServerError extends ApiError {
   }
 }
 
-/**
- * Error de red
- */
+
 export class NetworkError extends ApiError {
   constructor(message = 'Error de conexión. Verifica tu internet.') {
     super(0, message);
@@ -74,9 +58,6 @@ export class NetworkError extends ApiError {
   }
 }
 
-/**
- * Función helper para crear el error correcto según el status
- */
 export function createApiError(status: number, data?: any): ApiError {
   switch (status) {
     case 401:

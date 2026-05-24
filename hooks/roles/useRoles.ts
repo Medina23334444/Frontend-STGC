@@ -28,17 +28,15 @@ export function useRoles() {
     error: data.error,
     fetchAll: data.fetchAll,
     handleCreateRole,
-    handleEditRole,      // ¡Asegúrate de exportarlo!
-    handleDeleteRole,    // ¡Asegúrate de exportarlo!
+    handleEditRole,    
+    handleDeleteRole,    
     
-    // Modales de Creación/Edición
     isModalOpen: modals.isModalOpen,
     roleToEdit: modals.roleToEdit,
     openCreateModal: modals.openCreateModal,
     openEditModal: modals.openEditModal,
     closeModal: modals.closeModal,
 
-    // Modales de Eliminación (Nuevos)
     isDeleteModalOpen: modals.isDeleteModalOpen,
     roleToDelete: modals.roleToDelete,
     openDeleteModal: modals.openDeleteModal,

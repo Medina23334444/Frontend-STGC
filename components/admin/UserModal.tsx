@@ -23,7 +23,6 @@ export default function UserModal({
     handleSubmit,
     errors,
     isSubmitting,
-    apiError,
     handleFormSubmit,
     handleCancel,
     setValue,
@@ -72,14 +71,7 @@ export default function UserModal({
 
         {/* Body */}
         <div className="p-4 sm:p-5 overflow-y-auto custom-scrollbar">
-
-          {apiError && (
-            <div className="flex items-center gap-2 bg-red-50 text-red-600 p-3 rounded-lg mb-4 border border-red-100 text-sm">
-              <span className="material-symbols-outlined text-lg">error</span>
-              <p>{apiError}</p>
-            </div>
-          )}
-
+          
           <form onSubmit={handleSubmit(handleFormSubmit)} className="space-y-3">
 
             {/* Nombre y Apellido */}

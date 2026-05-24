@@ -1,16 +1,14 @@
 // hooks/users/useUserModal.ts
-import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { registerSchema, RegisterFormInputs } from '@/schemas/user.schema';
-import { ApiError } from '@/lib/errors/ApiErrors';
+
 
 interface UseUserModalReturn {
   readonly register: ReturnType<typeof useForm<RegisterFormInputs>>['register'];
   readonly handleSubmit: ReturnType<typeof useForm<RegisterFormInputs>>['handleSubmit'];
   readonly errors: ReturnType<typeof useForm<RegisterFormInputs>>['formState']['errors'];
   readonly isSubmitting: boolean;
-  readonly apiError: string | null;
   readonly handleFormSubmit: (datos: RegisterFormInputs) => Promise<void>;
   readonly handleCancel: () => void;
   readonly setValue: ReturnType<typeof useForm<RegisterFormInputs>>['setValue'];
@@ -22,7 +20,6 @@ export function useUserModal(
   onSuccess: () => void,
   onClose: () => void,
 ): UseUserModalReturn {
-  const [apiError, setApiError] = useState<string | null>(null);
 
   const {
     register,
@@ -44,20 +41,13 @@ export function useUserModal(
   });
 
   const handleFormSubmit = async (datos: RegisterFormInputs) => {
-    setApiError(null);
     try {
       await onSubmit(datos);
       reset();
       onSuccess();
       onClose();
     } catch (err) {
-      if (err instanceof ApiError) {
-        setApiError(err.message);
-      } else if (err instanceof Error) {
-        setApiError(err.message);
-      } else {
-        setApiError('Error desconocido');
-      }
+      console.error('Error en el formulario de usuario:', err);
     }
   };
 
@@ -71,7 +61,6 @@ export function useUserModal(
     handleSubmit,
     errors,
     isSubmitting,
-    apiError,
     handleFormSubmit,
     handleCancel,
     setValue,
