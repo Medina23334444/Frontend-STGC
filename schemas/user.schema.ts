@@ -3,8 +3,6 @@ import * as z from 'zod';
 
 export const registerSchema = z.object({
   email: z.email({ error: 'Formato de correo inválido.' }).min(1, 'El correo es obligatorio.'),
-  
-  // ... resto de tu esquema ...
   password: z
     .string()
     .min(8, 'Debe tener al menos 8 caracteres.')
