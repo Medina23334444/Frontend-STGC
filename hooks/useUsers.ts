@@ -1,22 +1,17 @@
-// hooks/useUsers.ts
+// hooks/users/useUsers.ts
 import { useEffect } from 'react';
 import { useUsersData } from './useUsersData';
 import { useUsersModals } from './useUsersModals';
 import { useUsersFormatting } from './useUsersFormatting';
 
-/**
- * Hook principal que compone todos los hooks especializados
- * Permite backward compatibility si algo ya usa este hook
- */
 export function useUsers() {
   const data = useUsersData();
   const modals = useUsersModals();
   const formatting = useUsersFormatting();
 
-  // Fetch users al montar el componente
   useEffect(() => {
     data.fetchUsers();
-  }, []);
+  }, [data.fetchUsers]);
 
   return {
     // Data

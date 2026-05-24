@@ -8,4 +8,4 @@ export const PermissionSchema = z.object({
 });
 
 export const PermissionArraySchema = z.array(PermissionSchema);
-export type Permission = z.infer<typeof PermissionSchema>;s
+export type Permission = z.infer<typeof PermissionSchema>;

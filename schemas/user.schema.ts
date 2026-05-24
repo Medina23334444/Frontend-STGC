@@ -2,13 +2,15 @@
 import * as z from 'zod';
 
 export const registerSchema = z.object({
-  email: z.string().min(1, 'El correo es obligatorio.').email('Formato de correo inválido.'),
+  email: z.email({ error: 'Formato de correo inválido.' }).min(1, 'El correo es obligatorio.'),
+  
+  // ... resto de tu esquema ...
   password: z
     .string()
     .min(8, 'Debe tener al menos 8 caracteres.')
     .regex(/[A-Z]/, 'Debe contener al menos una mayúscula.')
     .regex(/[a-z]/, 'Debe contener al menos una minúscula.')
-    .regex(/[0-9]/, 'Debe contener al menos un número.')
+    .regex(/\d/, 'Debe contener al menos un número.')
     .regex(/[@$!%*?&]/, 'Debe contener un carácter especial (@$!%*?&).')
     .regex(/^[A-Za-z\d@$!%*?&]+$/, 'Contiene caracteres inválidos (solo letras, números y @$!%*?&).'),
   

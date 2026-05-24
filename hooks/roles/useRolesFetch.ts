@@ -23,7 +23,6 @@ export function useRolesFetch() {
         permissionsService.getAll()
       ]);
       
-      // ✅ Zod ya hace todo el trabajo. Si vienen nulos, el tipo z.infer lo acepta.
       setRoles(RoleArraySchema.parse(rolesData));
       setPermissions(PermissionArraySchema.parse(permsData));
       

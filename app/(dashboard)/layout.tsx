@@ -1,7 +1,5 @@
 // app/(dashboard)/layout.tsx
 'use client';
-
-import {  } from '@/context/AuthContext';
 import { useRouter, usePathname } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import Link from 'next/link';

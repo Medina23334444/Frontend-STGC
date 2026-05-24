@@ -1,32 +1,21 @@
-// hooks/useUsersModals.ts
+// hooks/users/useUsersModals.ts
 import { useState, useCallback } from 'react';
 import { User } from '@/types/user';
 
 interface UseUsersModalsReturn {
-  // Modal de creación
-  isCreateModalOpen: boolean;
-  openCreateModal: () => void;
-  closeCreateModal: () => void;
-
-  // Modal de edición
-  isEditModalOpen: boolean;
-  userToEdit: User | null;
-  openEditModal: (user: User) => void;
-  closeEditModal: () => void;
-
-  // Modal de confirmación de eliminación
-  isDeleteModalOpen: boolean;
-  userToDelete: User | null;
-  openDeleteModal: (user: User) => void;
-  closeDeleteModal: () => void;
+  readonly isCreateModalOpen: boolean;
+  readonly openCreateModal: () => void;
+  readonly closeCreateModal: () => void;
+  readonly isEditModalOpen: boolean;
+  readonly userToEdit: User | null;
+  readonly openEditModal: (user: User) => void;
+  readonly closeEditModal: () => void;
+  readonly isDeleteModalOpen: boolean;
+  readonly userToDelete: User | null;
+  readonly openDeleteModal: (user: User) => void;
+  readonly closeDeleteModal: () => void;
 }
 
-/**
- * Hook especializado en gestión de estado de modales
- * Responsabilidades:
- * - Abrir/cerrar modales
- * - Mantener el usuario seleccionado (edit/delete)
- */
 export function useUsersModals(): UseUsersModalsReturn {
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
@@ -41,6 +30,7 @@ export function useUsersModals(): UseUsersModalsReturn {
     setUserToEdit(user);
     setIsEditModalOpen(true);
   }, []);
+
   const closeEditModal = useCallback(() => {
     setUserToEdit(null);
     setIsEditModalOpen(false);
@@ -50,6 +40,7 @@ export function useUsersModals(): UseUsersModalsReturn {
     setUserToDelete(user);
     setIsDeleteModalOpen(true);
   }, []);
+
   const closeDeleteModal = useCallback(() => {
     setUserToDelete(null);
     setIsDeleteModalOpen(false);

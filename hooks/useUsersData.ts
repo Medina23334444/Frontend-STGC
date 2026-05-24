@@ -47,41 +47,23 @@ export function useUsersData(): UseUsersDataReturn {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<ApiError | null>(null);
 
-  // ✅ CAMBIO: Agregar validación con Zod
   const fetchUsers = useCallback(async () => {
     setLoading(true);
     setError(null);
     try {
       const rawData = await adminService.getUsers();
-      
-      // ✅ NUEVO: Validar datos antes de guardar
-      try {
-        const validUsers = UserArraySchema.parse(rawData);
-        // Type assertion because Zod schema may have optional role while our User type
-        // expects a RoleOut. We assert here after validation to satisfy TS.
-        setUsers(validUsers as unknown as User[]);
-      } catch (validationError) {
-        if (validationError instanceof z.ZodError) {
-          const apiError = new ApiError(
-            422,
-            'Los datos recibidos no cumplen el formato esperado'
-          );
-          setError(apiError);
-          console.error('Validation error:', validationError.issues);
-          throw apiError;
-        }
-        throw validationError;
-      }
+      // Zod valida y devuelve el tipo correcto
+      const validUsers = UserArraySchema.parse(rawData);
+      setUsers(validUsers as User[]); // Ahora es seguro
     } catch (err) {
-      const apiError = err instanceof ApiError ? err : new ApiError(0, 'Error desconocido');
+      const apiError = err instanceof ApiError ? err : new ApiError(500, 'Error al obtener usuarios');
       setError(apiError);
-      console.error('Error fetching users:', apiError);
+      console.error('Error fetching users:', err);
     } finally {
       setLoading(false);
     }
   }, []);
 
-  // Create user
   const createUser = useCallback(async (userData: UserCreate): Promise<User> => {
     try {
       const newUser = await adminService.registerUser(userData);
@@ -94,7 +76,6 @@ export function useUsersData(): UseUsersDataReturn {
     }
   }, []);
 
-  // Update user
   const updateUser = useCallback(async (userId: string, updateData: UserUpdate): Promise<User> => {
     try {
       const updatedUser = await adminService.updateUser(userId, updateData);
@@ -109,10 +90,8 @@ export function useUsersData(): UseUsersDataReturn {
     }
   }, []);
 
-  // Delete user
   const deleteUser = useCallback(async (userId: string): Promise<void> => {
     try {
-      // Si tu API no tiene endpoint delete, ignorar por ahora
       setUsers((prev) => prev.filter((user) => user.id !== userId));
     } catch (err) {
       const apiError = err instanceof ApiError ? err : new ApiError(0, 'Error al eliminar usuario');

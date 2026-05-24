@@ -8,15 +8,19 @@ import { Permission } from '@/schemas/permission.schema';
 import { ApiError, ValidationError } from '@/lib/errors/ApiErrors';
 
 interface RoleModalProps {
-  isOpen: boolean;
-  onClose: () => void;
-  onSubmit: (data: RoleCreate) => Promise<void>;
-  availablePermissions: Permission[];
-  initialData?: Role | null;
+  readonly isOpen: boolean;
+  readonly onClose: () => void;
+  readonly onSubmit: (data: RoleCreate) => Promise<void>;
+  readonly availablePermissions: Permission[];
+  readonly initialData?: Role | null;
 }
-
-export default function RoleModal({ isOpen, onClose, onSubmit, availablePermissions, initialData }: RoleModalProps) {
-  // ✅ Estado para manejar el error de la API en el modal
+export default function RoleModal({ 
+  isOpen, 
+  onClose, 
+  onSubmit, 
+  availablePermissions, 
+  initialData 
+}: RoleModalProps) {
   const [apiError, setApiError] = useState<string | null>(null);
 
   const { register, handleSubmit, reset, watch, setValue, formState: { errors, isSubmitting } } = useForm({
@@ -25,13 +29,11 @@ export default function RoleModal({ isOpen, onClose, onSubmit, availablePermissi
   });
 
   const handleFormSubmit = async (data: RoleCreate) => {
-    setApiError(null); // Limpiamos errores previos
+    setApiError(null); 
     try {
       await onSubmit(data);
     } catch (error) {
-      // ✅ Aquí ATRAPAMOS y formateamos el error usando tu arquitectura
       if (error instanceof ValidationError) {
-        // Extraemos los mensajes de validación (ej: {"name": ["El nombre ya existe"]})
         const messages = Object.values(error.validationErrors).flat().join(', ');
         setApiError(`Error de validación: ${messages}`);
       } else if (error instanceof ApiError) {
@@ -43,7 +45,7 @@ export default function RoleModal({ isOpen, onClose, onSubmit, availablePermissi
   };
 
   useEffect(() => {
-    setApiError(null); // Limpiar errores al abrir/cerrar
+    setApiError(null);
     if (isOpen && initialData) {
       reset({
         name: initialData.name,
@@ -83,7 +85,7 @@ export default function RoleModal({ isOpen, onClose, onSubmit, availablePermissi
         <form onSubmit={handleSubmit(handleFormSubmit)} className="space-y-4">
           {/* ... (El resto del formulario se mantiene exactamente igual) ... */}
           <div>
-            <label className="block text-sm font-medium text-gray-700">Nombre del Rol *</label>
+            <label htmlFor="role-name" className="block text-sm font-medium text-gray-700"> Nombre del Rol *</label>
             <input 
               {...register('name')} 
               className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm p-2 border"
@@ -93,7 +95,7 @@ export default function RoleModal({ isOpen, onClose, onSubmit, availablePermissi
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700">Descripción</label>
+            <label htmlFor="role-description" className="block text-sm font-medium text-gray-700">Descripción</label>
             <textarea 
               {...register('description')} 
               className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm p-2 border"
@@ -102,7 +104,7 @@ export default function RoleModal({ isOpen, onClose, onSubmit, availablePermissi
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">Permisos Asignados</label>
+            <label htmlFor="role-permissions" className="block text-sm font-medium text-gray-700 mb-2">Permisos Asignados</label>
             <div className="max-h-48 overflow-y-auto border border-gray-200 rounded-md p-2 space-y-2 bg-gray-50">
               {availablePermissions.map(perm => (
                 <label key={perm.id} className="flex items-center space-x-2 cursor-pointer p-1 hover:bg-gray-100 rounded">
