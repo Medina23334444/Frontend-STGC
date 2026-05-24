@@ -1,6 +1,6 @@
 // hooks/useUsersHandlers.ts
 import { useCallback } from 'react';
-import { RegisterFormInputs } from '../schemas/user.schema';
+import { RegisterFormInputs } from '../../schemas/user.schema';
 import { useUsersData } from './useUsersData';
 
 export function useUsersHandlers() {

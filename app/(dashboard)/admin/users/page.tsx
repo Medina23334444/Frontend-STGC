@@ -4,7 +4,7 @@
 import { PageHeader } from '@/components/shared/PageHeader'; 
 import UserModal from '@/components/admin/UserModal';
 import { useUsers } from '@/hooks/useUsers';
-import { useUsersHandlers } from '@/hooks/useUsersHandlers';
+import { useUsersHandlers } from '@/hooks/user/useUsersHandlers';
 import { UsersTable } from '@/components/admin/UsersTable';
 import { PageBackground } from '@/components/shared/PageBackground';
 import { UsersError } from '@/components/admin/UsersError';

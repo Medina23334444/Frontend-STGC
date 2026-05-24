@@ -7,7 +7,6 @@ export function useRoles() {
   const { roles, setRoles, permissions, fetchAll, loading, error } = useRolesFetch();
   const { createRole, updateRole, deleteRole } = useRolesMutations(setRoles);
   
-  // ✅ Instanciamos los modales
   const { 
     isModalOpen, 
     roleToEdit, 
@@ -17,19 +16,14 @@ export function useRoles() {
   } = useRolesModals();
   
   return {
-    // Data
     roles,
     permissions,
     loading,
     error,
-    
-    // Acciones de Red
     fetchAll,
     createRole,
     updateRole,
     deleteRole,
-
-    // Estado y Acciones de Modales
     isModalOpen,
     roleToEdit,
     openCreateModal,
