@@ -1,14 +1,13 @@
-// app/(dashboard)/admin/users/page.tsx
 'use client';
 
+// 1. Importa el componente compartido
+import { PageHeader } from '@/components/shared/PageHeader'; 
 import UserModal from '@/components/admin/UserModal';
 import { useUsers } from '@/hooks/useUsers';
 import { useUsersHandlers } from '@/hooks/useUsersHandlers';
-import { UsersHeader } from '@/components/admin/UsersHeader';
 import { UsersTable } from '@/components/admin/UsersTable';
-import { PageBackground } from '@/components/admin/PageBackground';
+import { PageBackground } from '@/components/shared/PageBackground';
 import { UsersError } from '@/components/admin/UsersError';
-
 
 export default function AdminUsersPage() {
   const {
@@ -35,7 +34,12 @@ export default function AdminUsersPage() {
       <PageBackground />
 
       <div className="relative z-10 space-y-6">
-        <UsersHeader onOpenCreate={openCreateModal} />
+        <PageHeader 
+          title="Gestionar Personal"
+          description="Crea, edita o elimina empleados"
+          buttonLabel="Nuevo Empleado"
+          onOpenCreate={openCreateModal}
+        />
 
         <UsersTable
           users={users}

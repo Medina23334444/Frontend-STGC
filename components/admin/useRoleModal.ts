@@ -7,8 +7,9 @@ import { Role, RoleCreate } from '@/types/rol';
 import { ApiError, ValidationError } from '@/lib/errors/ApiErrors';
 
 interface UseRoleModalReturn {
+    
   readonly register: ReturnType<typeof useForm<RoleCreateInput>>['register'];
-  readonly handleSubmit: ReturnType<typeof useForm<RoleCreateInput>>['handleSubmit'];
+  readonly handleSubmit: ReturnType<typeof useForm<RoleCreateInput, unknown, RoleCreateOutput>>['handleSubmit'];
   readonly errors: ReturnType<typeof useForm<RoleCreateInput>>['formState']['errors'];
   readonly isSubmitting: boolean;
   readonly apiError: string | null;
@@ -42,6 +43,7 @@ export function useRoleModal(
     },
   });
 
+  // Efecto para inicializar o resetear el formulario cuando el modal se abre
   useEffect(() => {
     if (!isOpen) return;
     setApiError(null);
@@ -56,7 +58,6 @@ export function useRoleModal(
     }
   }, [isOpen, initialData, reset]);
 
-  // Lógica de checkboxes de permisos
   const currentPermissions = watch('permission_ids') ?? [];
 
   const togglePermission = (id: string) => {
@@ -66,25 +67,33 @@ export function useRoleModal(
     setValue('permission_ids', next, { shouldValidate: true });
   };
 
+  // Manejo del Submit y Errores
   const handleFormSubmit = async (formData: RoleCreateOutput) => {
+    setApiError(null);
     try {
-        await onSubmit({
+      // formData ya viene limpio, validado y con los defaults aplicados por Zod
+      await onSubmit({
         name: formData.name,
-        description: formData.description ?? null,
-        permission_ids: formData.permission_ids ?? [],
-        });
-        onClose(); 
-    } catch (error: any) {
-        // Aquí manejas el error
-        if (error.name === 'ValidationError') {
-        // Si el servidor devolvió errores de validación (422), 
-        // podrías mostrarlos usando setError de react-hook-form
-        console.error('Errores de validación del servidor:', error.validationErrors);
-        alert('Por favor, revisa los campos.');
-        } else {
-        // Para errores 500, 401, etc.
-        alert(error.message || 'Ocurrió un error inesperado');
-        }
+        description: formData.description, // Ya es string | null, nunca undefined
+        permission_ids: formData.permission_ids, // Ya es string[], nunca undefined
+      });
+      
+      reset();
+      onClose();
+    } catch (error) {
+      if (error instanceof ValidationError) {
+        const messages = Object.values(error.validationErrors)
+        .flat()
+        .map(e => typeof e === 'string' ? e : JSON.stringify(e))
+        .join(', ');
+        setApiError(`Error de validación: ${messages}`);
+      } else if (error instanceof ApiError) {
+        setApiError(error.message);
+      } else if (error instanceof Error) {
+        setApiError(error.message);
+      } else {
+        setApiError('Ocurrió un error inesperado al guardar el rol.');
+      }
     }
   };
 

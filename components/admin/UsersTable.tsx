@@ -1,16 +1,16 @@
-// components/users/UsersTable.tsx
-import { User, UserStatus} from '@/types/user';
+// components/admin/UsersTable.tsx
+import { User, UserStatus } from '@/types/user';
+import { DataTable } from '@/components/shared/DataTable';
+
 interface UsersTableProps {
   readonly users: User[];
   readonly loading: boolean;
   readonly formatUserName: (user: User) => string;
-  readonly getStatusBadge: (status: UserStatus) => string; 
-  readonly getStatusDot: (status: UserStatus) => string;   
-  readonly getStatusLabel: (status: UserStatus) => string; 
+  readonly getStatusBadge: (status: UserStatus) => string;
+  readonly getStatusDot: (status: UserStatus) => string;
+  readonly getStatusLabel: (status: UserStatus) => string;
   readonly onEdit: (user: User) => void;
 }
-
-
 
 export function UsersTable({
   users,
@@ -21,68 +21,25 @@ export function UsersTable({
   getStatusLabel,
   onEdit,
 }: UsersTableProps) {
-  
-  const renderTableBody = () => {
-    if (loading) {
-      return <UsersTableLoading />;
-    }
-
-    if (users.length === 0) {
-      return <UsersTableEmpty />;
-    }
-
-    return users.map((u) => (
-      <UsersTableRow
-        key={u.id}
-        user={u}
-        formatUserName={formatUserName}
-        getStatusBadge={getStatusBadge}
-        getStatusDot={getStatusDot}
-        getStatusLabel={getStatusLabel}
-        onEdit={onEdit}
-      />
-    ));
-  };
-
   return (
-    <div className="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
-      <div className="overflow-x-auto">
-        <table className="w-full text-left border-collapse">
-          <thead>
-            <tr className="bg-slate-50 border-b border-slate-200 text-slate-500 text-xs uppercase tracking-wider">
-              <th className="px-6 py-4 font-semibold">Usuario / Email</th>
-              <th className="px-6 py-4 font-semibold">Rol</th>
-              <th className="px-6 py-4 font-semibold text-center">Estado</th>
-              <th className="px-6 py-4 font-semibold text-center">Acciones</th>
-            </tr>
-          </thead>
-          {/* Se usa la función auxiliar aquí */}
-          <tbody className="divide-y divide-slate-100/80">
-            {renderTableBody()}
-          </tbody>
-        </table>
-      </div>
-    </div>
-  );
-}
-
-function UsersTableLoading() {
-  return (
-    <tr>
-      <td colSpan={4} className="px-6 py-12 text-center text-slate-500">
-        <div className="h-6 w-6 animate-spin rounded-full border-2 border-slate-900 border-t-transparent mx-auto" />
-      </td>
-    </tr>
-  );
-}
-
-function UsersTableEmpty() {
-  return (
-    <tr>
-      <td colSpan={4} className="px-6 py-12 text-center text-slate-500">
-        No hay usuarios registrados.
-      </td>
-    </tr>
+    <DataTable
+      headers={['Usuario / Email', 'Rol', 'Estado', 'Acciones']}
+      loading={loading}
+      isEmpty={users.length === 0}
+      emptyMessage="No hay usuarios registrados."
+    >
+      {users.map((user) => (
+        <UsersTableRow
+          key={user.id}
+          user={user}
+          formatUserName={formatUserName}
+          getStatusBadge={getStatusBadge}
+          getStatusDot={getStatusDot}
+          getStatusLabel={getStatusLabel}
+          onEdit={onEdit}
+        />
+      ))}
+    </DataTable>
   );
 }
 
