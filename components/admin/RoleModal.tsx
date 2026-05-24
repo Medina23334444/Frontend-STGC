@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect } from 'react';
-import { useForm, type SubmitHandler } from 'react-hook-form';
+import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { CreateRoleSchema, RoleCreate, Role } from '@/schemas/roles.schema';
 import { Permission } from '@/schemas/permission.schema';
@@ -15,9 +15,6 @@ interface RoleModalProps {
 }
 
 export default function RoleModal({ isOpen, onClose, onSubmit, availablePermissions, initialData }: RoleModalProps) {
-  const handleFormSubmit: SubmitHandler<RoleCreate> = async (data) => {
-    await onSubmit(data);
-  };
   
   const { register, handleSubmit, reset, watch, setValue, formState: { errors, isSubmitting } } = useForm<RoleCreate>({
     resolver: zodResolver(CreateRoleSchema),
@@ -60,7 +57,7 @@ export default function RoleModal({ isOpen, onClose, onSubmit, availablePermissi
           {initialData ? 'Editar Rol' : 'Crear Nuevo Rol'}
         </h2>
 
-        <form onSubmit={handleSubmit(handleFormSubmit)} className="space-y-4">
+        <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
           {/* Nombre */}
           <div>
             <label className="block text-sm font-medium text-gray-700">Nombre del Rol *</label>

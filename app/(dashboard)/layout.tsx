@@ -115,6 +115,11 @@ export default function DashboardLayout({
                       <span className="material-symbols-outlined text-xl">receipt_long</span>
                       <span>Logs de Auditoría</span>
                     </Link>
+                    
+                    <Link href="/admin/roles" className={getNavLinkClass('/admin/roles')}>
+                      <span className="material-symbols-outlined text-lg">admin_panel_settings</span>
+                      <span>Roles y Permisos</span>
+                    </Link>
                   </>
                 )}
               </div>

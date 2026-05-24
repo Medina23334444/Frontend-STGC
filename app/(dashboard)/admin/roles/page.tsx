@@ -1,149 +1,144 @@
-// app/(dashboard)/admin/roles/page.tsx
 'use client';
 
-import { useEffect } from 'react';
-import { useRoles } from '@/hooks/roles/useRoles';
-import RoleModal from '@/components/admin/RoleModal';
-import { RoleCreate } from '@/schemas/roles.schema';
+import { useEffect, useState } from 'react';
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { CreateRoleSchema, RoleCreate, Role } from '@/schemas/roles.schema';
+import { Permission } from '@/schemas/permission.schema';
+import { ApiError, ValidationError } from '@/lib/errors/ApiErrors';
 
+interface RoleModalProps {
+  isOpen: boolean;
+  onClose: () => void;
+  onSubmit: (data: RoleCreate) => Promise<void>;
+  availablePermissions: Permission[];
+  initialData?: Role | null;
+}
 
-export default function RolesPage() {
-  const { 
-    // Data
-    roles, permissions, loading, error, fetchAll, 
-    // Mutaciones
-    createRole, // Asumiendo que agregaste updateRole en useRolesMutations
-    // Modales
-    isModalOpen, roleToEdit, openCreateModal, openEditModal, closeModal 
-  } = useRoles();
+export default function RoleModal({ isOpen, onClose, onSubmit, availablePermissions, initialData }: RoleModalProps) {
+  // ✅ Estado para manejar el error de la API en el modal
+  const [apiError, setApiError] = useState<string | null>(null);
 
-  useEffect(() => {
-    fetchAll();
-  }, [fetchAll]);
+  const { register, handleSubmit, reset, watch, setValue, formState: { errors, isSubmitting } } = useForm({
+    resolver: zodResolver(CreateRoleSchema),
+    defaultValues: { name: '', description: '', permission_ids: [] }
+  });
 
-  // Manejador que decide si crea o edita según si existe roleToEdit
-  const handleSubmit = async (data: RoleCreate) => {
-    if (roleToEdit) {
-      // await updateRole(roleToEdit.id, data); // Descomenta cuando tengas updateRole
-      console.log('Editando rol', roleToEdit.id, data);
-    } else {
-      await createRole(data);
+  const handleFormSubmit = async (data: RoleCreate) => {
+    setApiError(null); // Limpiamos errores previos
+    try {
+      await onSubmit(data);
+    } catch (error) {
+      // ✅ Aquí ATRAPAMOS y formateamos el error usando tu arquitectura
+      if (error instanceof ValidationError) {
+        // Extraemos los mensajes de validación (ej: {"name": ["El nombre ya existe"]})
+        const messages = Object.values(error.validationErrors).flat().join(', ');
+        setApiError(`Error de validación: ${messages}`);
+      } else if (error instanceof ApiError) {
+        setApiError(error.message);
+      } else {
+        setApiError('Ocurrió un error inesperado al guardar el rol.');
+      }
     }
-    closeModal();
   };
 
-  if (loading) {
-    return (
-      <div className="flex justify-center items-center h-64">
-        <div className="h-6 w-6 animate-spin rounded-full border-2 border-slate-900 border-t-transparent mx-auto" />
-      </div>
-    );
-  }
+  useEffect(() => {
+    setApiError(null); // Limpiar errores al abrir/cerrar
+    if (isOpen && initialData) {
+      reset({
+        name: initialData.name,
+        description: initialData.description || '',
+        permission_ids: initialData.permissions.map(p => p.id)
+      });
+    } else if (isOpen && !initialData) {
+      reset({ name: '', description: '', permission_ids: [] });
+    }
+  }, [isOpen, initialData, reset]);
 
-  if (error) {
-    return (
-      <div className="p-6">
-        <div className="bg-red-50 border-l-4 border-red-500 p-4 text-red-700">
-          <p className="font-bold">Error al cargar los datos</p>
-          <p>{error.message}</p>
-        </div>
-      </div>
-    );
-  }
+  if (!isOpen) return null;
+
+  const currentPermissions = watch('permission_ids') || [];
+  
+  const togglePermission = (id: string) => {
+    const newPerms = currentPermissions.includes(id)
+      ? currentPermissions.filter(pId => pId !== id)
+      : [...currentPermissions, id];
+    setValue('permission_ids', newPerms, { shouldValidate: true });
+  };
 
   return (
-    <div className="p-6 md:p-10 space-y-6 relative z-10 flex-1">
-      {/* Background decoration igual al de usuarios */}
-      <div className="absolute inset-0 z-0 overflow-hidden pointer-events-none">
-        <div className="absolute top-[-5%] left-[20%] w-[40%] h-[40%] rounded-full bg-sky-200/10 blur-[130px]" />
-      </div>
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
+      <div className="bg-white rounded-lg shadow-xl w-full max-w-md p-6">
+        <h2 className="text-xl font-bold text-gray-800 mb-4">
+          {initialData ? 'Editar Rol' : 'Crear Nuevo Rol'}
+        </h2>
 
-      <div className="relative z-10 space-y-6">
-        {/* Encabezado */}
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-white p-6 rounded-2xl shadow-sm border border-slate-200">
+        {/* ✅ Alerta visual si ocurre un ApiError */}
+        {apiError && (
+          <div className="mb-4 p-3 bg-red-50 border-l-4 border-red-500 text-sm text-red-700">
+            {apiError}
+          </div>
+        )}
+
+        <form onSubmit={handleSubmit(handleFormSubmit)} className="space-y-4">
+          {/* ... (El resto del formulario se mantiene exactamente igual) ... */}
           <div>
-            <h1 className="text-2xl font-bold text-slate-800">Gestión de Roles</h1>
-            <p className="text-sm text-slate-500 mt-1">Administra los roles y permisos del sistema.</p>
+            <label className="block text-sm font-medium text-gray-700">Nombre del Rol *</label>
+            <input 
+              {...register('name')} 
+              className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm p-2 border"
+              placeholder="Ej: CAJERO"
+            />
+            {errors.name && <p className="text-red-500 text-xs mt-1">{errors.name.message}</p>}
           </div>
-          <button 
-            onClick={openCreateModal} // ✅ Conectado
-            className="bg-slate-900 hover:bg-slate-800 text-white px-5 py-2.5 rounded-xl font-semibold text-sm transition shadow-md flex items-center gap-2"
-          >
-            <span className="material-symbols-outlined text-lg">add</span>
-            Nuevo Rol
-          </button>
-        </div>
 
-        {/* Tabla de Roles */}
-        <div className="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
-          <div className="overflow-x-auto">
-            <table className="w-full text-left border-collapse">
-              <thead>
-                <tr className="bg-slate-50 border-b border-slate-200 text-slate-500 text-xs uppercase tracking-wider">
-                  <th className="px-6 py-4 font-semibold">Rol</th>
-                  <th className="px-6 py-4 font-semibold">Descripción</th>
-                  <th className="px-6 py-4 font-semibold">Permisos Asignados</th>
-                  <th className="px-6 py-4 font-semibold text-center">Acciones</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-slate-100/80">
-                {roles.length === 0 ? (
-                  <tr>
-                    <td colSpan={4} className="px-6 py-12 text-center text-slate-500">
-                      No hay roles registrados en el sistema.
-                    </td>
-                  </tr>
-                ) : (
-                  roles.map((role) => (
-                    <tr key={role.id} className="hover:bg-slate-50/50 transition-colors group">
-                      <td className="px-6 py-4 font-medium text-slate-700">{role.name}</td>
-                      <td className="px-6 py-4 text-sm text-slate-500">{role.description || '-'}</td>
-                      
-                      <td className="px-6 py-4">
-                        <div className="flex flex-wrap gap-1.5">
-                          {role.permissions.map((perm) => (
-                            <span 
-                              key={perm.id} 
-                              className="inline-flex items-center px-2 py-0.5 rounded text-[11px] font-medium bg-slate-100 text-slate-600 border border-slate-200"
-                              title={perm.description || perm.name}
-                            >
-                              {perm.name}
-                            </span>
-                          ))}
-                          {role.permissions.length === 0 && (
-                            <span className="text-xs text-slate-400 italic">Sin permisos</span>
-                          )}
-                        </div>
-                      </td>
-
-                      <td className="px-6 py-4 text-center">
-                        <button 
-                          onClick={() => openEditModal({
-                            ...role,
-                            description: role.description ?? null,
-                            permissions: role.permissions.map(p => ({ ...p, description: p.description ?? null })),
-                          })} // ✅ Conectado
-                          className="text-slate-400 hover:text-sky-600 p-2 rounded-lg hover:bg-sky-50 transition-colors inline-block"
-                        >
-                          <span className="material-symbols-outlined text-sm">edit</span>
-                        </button>
-                      </td>
-                    </tr>
-                  ))
-                )}
-              </tbody>
-            </table>
+          <div>
+            <label className="block text-sm font-medium text-gray-700">Descripción</label>
+            <textarea 
+              {...register('description')} 
+              className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm p-2 border"
+              rows={3}
+            />
           </div>
-        </div>
 
-        {/* ✅ Modal Inyectado (Decoupled) */}
-        <RoleModal 
-          isOpen={isModalOpen}
-          onClose={closeModal}
-          initialData={roleToEdit}
-          availablePermissions={permissions}
-          onSubmit={handleSubmit}
-        />
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">Permisos Asignados</label>
+            <div className="max-h-48 overflow-y-auto border border-gray-200 rounded-md p-2 space-y-2 bg-gray-50">
+              {availablePermissions.map(perm => (
+                <label key={perm.id} className="flex items-center space-x-2 cursor-pointer p-1 hover:bg-gray-100 rounded">
+                  <input 
+                    type="checkbox"
+                    checked={currentPermissions.includes(perm.id)}
+                    onChange={() => togglePermission(perm.id)}
+                    className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+                  />
+                  <span className="text-sm text-gray-800">{perm.name}</span>
+                </label>
+              ))}
+              {availablePermissions.length === 0 && (
+                <p className="text-xs text-gray-500 text-center italic">No hay permisos disponibles para asignar.</p>
+              )}
+            </div>
+          </div>
+
+          <div className="flex justify-end space-x-3 pt-4 border-t border-gray-100">
+            <button 
+              type="button" 
+              onClick={onClose}
+              disabled={isSubmitting}
+              className="px-4 py-2 bg-white border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 hover:bg-gray-50"
+            >
+              Cancelar
+            </button>
+            <button 
+              type="submit" 
+              disabled={isSubmitting}
+              className="px-4 py-2 bg-blue-600 border border-transparent rounded-md shadow-sm text-sm font-medium text-white hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50"
+            >
+              {isSubmitting ? 'Guardando...' : 'Guardar Rol'}
+            </button>
+          </div>
+        </form>
       </div>
     </div>
   );

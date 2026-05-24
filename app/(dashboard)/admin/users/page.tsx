@@ -3,7 +3,7 @@
 
 import UserModal from '@/components/admin/UserModal';
 import { useUsers } from '@/hooks/useUsers';
-import { useUsersHandlers } from '@/hooks/useUsersHandlers'; // ✅ NUEVO
+import { useUsersHandlers } from '@/hooks/useUsersHandlers'; // NUEVO
 import { ValidationError } from '@/lib/errors/ApiErrors';
 
 export default function AdminUsersPage() {
