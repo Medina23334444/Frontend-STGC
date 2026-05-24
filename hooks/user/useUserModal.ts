@@ -13,6 +13,8 @@ interface UseUserModalReturn {
   readonly apiError: string | null;
   readonly handleFormSubmit: (datos: RegisterFormInputs) => Promise<void>;
   readonly handleCancel: () => void;
+  readonly setValue: ReturnType<typeof useForm<RegisterFormInputs>>['setValue'];
+  readonly watch: ReturnType<typeof useForm<RegisterFormInputs>>['watch'];
 }
 
 export function useUserModal(
@@ -27,6 +29,8 @@ export function useUserModal(
     handleSubmit,
     reset,
     formState: { errors, isSubmitting },
+    setValue,
+    watch
   } = useForm<RegisterFormInputs>({
     resolver: zodResolver(registerSchema),
     defaultValues: {
@@ -34,7 +38,7 @@ export function useUserModal(
       last_name: '',
       identifier: '',
       phone_number: '',
-      role_name: 'OPERADOR',
+      role_name: 'CAPATAZ',
       status: 'ACTIVO',
     },
   });
@@ -70,5 +74,7 @@ export function useUserModal(
     apiError,
     handleFormSubmit,
     handleCancel,
+    setValue,
+    watch
   };
 }

@@ -1,7 +1,7 @@
 // components/admin/RoleModal.tsx
 'use client';
 
-import { useRoleModal } from './useRoleModal'; 
+import { useRoleModal } from '@/hooks/roles/useRoleModal'; 
 import { Permission } from '@/schemas/permission.schema';
 import { RoleCreate, Role } from '@/types/rol';
 
@@ -22,112 +22,143 @@ export default function RoleModal({
 }: RoleModalProps) {
   
   const {
-    register,
-    handleSubmit,
-    errors,
-    isSubmitting,
-    apiError,
-    currentPermissions,
-    togglePermission,
-    handleFormSubmit,
-    handleCancel,
-  } = useRoleModal(onSubmit, onClose, isOpen, initialData);
+  register,
+  handleSubmit,
+  errors,
+  isSubmitting,
+  apiError,
+  currentPermissions,
+  togglePermission,
+  handleFormSubmit,
+} = useRoleModal(onSubmit, onClose, isOpen, initialData);
 
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
-      <div className="bg-white rounded-lg shadow-xl w-full max-w-md p-6">
-        <h2 className="text-xl font-bold text-gray-800 mb-4">
-          {initialData ? 'Editar Rol' : 'Crear Nuevo Rol'}
-        </h2>
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4 sm:p-6">
+      <div className="bg-white rounded-2xl shadow-xl w-full max-w-lg flex flex-col max-h-[90vh] animate-in fade-in zoom-in-95 duration-200">
 
-        {/* Alerta de Error de API o Validación */}
-        {apiError && (
-          <div className="mb-4 p-3 bg-red-50 border-l-4 border-red-500 text-sm text-red-700">
-            {apiError}
-          </div>
-        )}
+        {/* Header */}
+        <div className="flex justify-between items-center p-5 border-b border-slate-100 bg-slate-50/50 shrink-0">
+          <h2 className="text-lg font-bold text-slate-800">
+            {initialData ? 'Editar Rol' : 'Crear Nuevo Rol'}
+          </h2>
+          <button
+            type="button"
+            onClick={onClose}
+            className="text-slate-400 hover:text-slate-700 bg-slate-200/50 hover:bg-slate-200 p-1.5 rounded-full transition"
+          >
+            <span className="material-symbols-outlined text-sm">close</span>
+          </button>
+        </div>
 
-        <form onSubmit={handleSubmit(handleFormSubmit as Parameters<typeof handleSubmit>[0])} className="space-y-4">
-          
-          {/* Nombre */}
-          <div>
-            <label htmlFor="name" className="block text-sm font-medium text-gray-700">
-              Nombre del Rol *
-            </label>
-            <input
-              id="name"
-              {...register('name')}
-              className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm p-2 border"
-              placeholder="Ej: CAJERO"
-            />
-            {errors.name && (
-              <p className="text-red-500 text-xs mt-1">{errors.name.message}</p>
-            )}
-          </div>
+        {/* Body */}
+        <div className="p-5 overflow-y-auto custom-scrollbar">
 
-          {/* Descripción */}
-          <div>
-            <label htmlFor="description" className="block text-sm font-medium text-gray-700">
-              Descripción
-            </label>
-            <textarea
-              id="description"
-              {...register('description')}
-              className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm p-2 border"
-              rows={3}
-            />
-          </div>
+          {apiError && (
+            <div className="flex items-center gap-2 bg-red-50 text-red-600 p-3 rounded-lg mb-4 border border-red-100 text-sm">
+              <span className="material-symbols-outlined text-lg">error</span>
+              <p>{apiError}</p>
+            </div>
+          )}
 
-          {/* Permisos (Checkboxes) */}
-          <div>
-            <label htmlFor="permissions" className="block text-sm font-medium text-gray-700 mb-2">
-              Permisos Asignados
-            </label>
-            <div className="max-h-48 overflow-y-auto border border-gray-200 rounded-md p-2 space-y-2 bg-gray-50">
-              {availablePermissions.length === 0 ? (
-                <p className="text-xs text-gray-500 text-center italic">
-                  No hay permisos disponibles.
-                </p>
-              ) : (
-                availablePermissions.map((perm) => (
-                  <label
-                    key={perm.id}
-                    className="flex items-center space-x-2 cursor-pointer p-1 hover:bg-gray-100 rounded"
-                  >
-                    <input
-                      type="checkbox"
-                      checked={currentPermissions.includes(perm.id)}
-                      onChange={() => togglePermission(perm.id)}
-                      className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
-                    />
-                    <span className="text-sm text-gray-800">{perm.name}</span>
-                  </label>
-                ))
+          <form onSubmit={handleSubmit(handleFormSubmit as Parameters<typeof handleSubmit>[0])} className="space-y-3">
+
+            {/* Nombre */}
+            <div>
+              <label htmlFor="name" className="block text-sm font-semibold text-slate-700 mb-1">
+                Nombre del Rol *
+              </label>
+              <input
+                id="name"
+                type="text"
+                {...register('name')}
+                className={`w-full px-3 py-2 bg-slate-50 border rounded-xl focus:ring-2 outline-none text-sm transition-all ${
+                  errors.name
+                    ? 'border-red-300 focus:border-red-500 focus:ring-red-500/20'
+                    : 'border-slate-200 focus:border-sky-500 focus:ring-sky-500/20'
+                }`}
+                placeholder="Ej: CAJERO"
+              />
+              {errors.name && (
+                <span className="text-xs text-red-500 mt-1 block">{errors.name.message}</span>
               )}
             </div>
-          </div>
 
-          {/* Botones de Acción */}
-          <div className="flex justify-end space-x-3 pt-4 border-t border-gray-100">
-            <button
-              type="button"
-              onClick={handleCancel}
-              disabled={isSubmitting}
-              className="px-4 py-2 bg-white border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 hover:bg-gray-50 disabled:opacity-50"
-            >
-              Cancelar
-            </button>
-            <button
-              type="submit"
-              disabled={isSubmitting}
-              className="px-4 py-2 bg-blue-600 border border-transparent rounded-md shadow-sm text-sm font-medium text-white hover:bg-blue-700 disabled:opacity-50"
-            >
-              {isSubmitting ? 'Guardando...' : 'Guardar Rol'}
-            </button>
-          </div>
-        </form>
+            {/* Descripción */}
+            <div>
+                <label htmlFor="description" className="block text-sm font-semibold text-slate-700 mb-1">
+                  Descripción
+                </label>
+                <textarea
+                  id="description"
+                  {...register('description')}
+                  className={`w-full px-3 py-2 bg-slate-50 border rounded-xl focus:ring-2 outline-none text-sm transition-all resize-none ${
+                    errors.description
+                      ? 'border-red-300 focus:border-red-500 focus:ring-red-500/20'
+                      : 'border-slate-200 focus:border-sky-500 focus:ring-sky-500/20'
+                  }`}
+                  placeholder="Describe las responsabilidades del rol..."
+                  rows={3}
+                />
+                {errors.description ? (
+                  <span className="text-xs text-red-500 mt-1 block">{errors.description.message}</span>
+                ) : (
+                  <span className="text-xs text-slate-400 mt-1 block">
+                    Mínimo 10 caracteres si desea agregar una descripción.
+                  </span>
+                )}
+            </div>
+
+            {/* Permisos */}
+            <div>
+              <label htmlFor="permissions" className="block text-sm font-semibold text-slate-700 mb-1">
+                Permisos Asignados
+              </label>
+              <div className="max-h-48 overflow-y-auto border border-slate-200 rounded-xl p-2 space-y-1 bg-slate-50">
+                {availablePermissions.length === 0 ? (
+                  <p className="text-xs text-slate-400 text-center italic py-3">
+                    No hay permisos disponibles.
+                  </p>
+                ) : (
+                  availablePermissions.map((perm) => (
+                    <label
+                      key={perm.id}
+                      className="flex items-center gap-2 cursor-pointer p-1.5 hover:bg-slate-100 rounded-lg transition-colors"
+                    >
+                      <input
+                        type="checkbox"
+                        checked={currentPermissions.includes(perm.id)}
+                        onChange={() => togglePermission(perm.id)}
+                        className="rounded border-slate-300 text-sky-600 focus:ring-sky-500"
+                      />
+                      <span className="text-sm text-slate-700">{perm.name}</span>
+                    </label>
+                  ))
+                )}
+              </div>
+            </div>
+
+            {/* Acciones */}
+            <div className="flex justify-end gap-3 pt-4 mt-2 border-t border-slate-100">
+              <button type="button" onClick={onClose}
+              className="px-4 py-2 text-sm font-semibold text-slate-600 hover:bg-slate-100 rounded-xl transition-colors" >
+                 Cancelar
+              </button>
+              <button
+                type="submit"
+                disabled={isSubmitting}
+                className="px-5 py-2 text-sm font-semibold text-white bg-slate-900 hover:bg-slate-800 shadow-md rounded-xl transition-all disabled:opacity-70 flex items-center gap-2"
+              >
+                {isSubmitting && (
+                  <span className="h-4 w-4 border-2 border-white/30 border-t-white animate-spin rounded-full" />
+                )}
+                {isSubmitting ? 'Guardando...' : 'Guardar Rol'}
+              </button>
+            </div>
+
+          </form>
+        </div>
       </div>
     </div>
   );

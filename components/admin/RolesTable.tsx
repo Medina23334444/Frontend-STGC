@@ -1,5 +1,7 @@
+// components/admin/RolesTable.tsx
 import { Role } from '@/types/rol';
 import { DataTable } from '@/components/shared/DataTable';
+import { useRolesFormatting } from '@/hooks/roles/useRolesFormatting';
 
 interface RolesTableProps {
   readonly roles: Role[];
@@ -28,15 +30,22 @@ interface RolesTableRowProps {
 }
 
 function RolesTableRow({ role, onEdit }: RolesTableRowProps) {
+  const { 
+    formatRoleName, 
+    formatDescription, 
+    getRoleBadgeClasses, 
+    getPermissionBadgeClasses 
+  } = useRolesFormatting();
+
   return (
     <tr className="hover:bg-slate-50/50 transition-colors group">
       <td className="px-6 py-4">
-        <div className="inline-flex items-center px-2.5 py-1 rounded-md text-xs font-semibold bg-sky-100 text-sky-700 border border-sky-200">
-          {role.name}
+        <div className={getRoleBadgeClasses()}>
+          {formatRoleName(role.name)}
         </div>
       </td>
       <td className="px-6 py-4">
-        <p className="text-sm text-slate-500">{role.description ?? '—'}</p>
+        <p className="text-sm text-slate-500">{formatDescription(role.description)}</p>
       </td>
       <td className="px-6 py-4">
         <div className="flex flex-wrap gap-1">
@@ -44,10 +53,7 @@ function RolesTableRow({ role, onEdit }: RolesTableRowProps) {
             <span className="text-xs text-slate-400 italic">Sin permisos</span>
           ) : (
             role.permissions.map((perm) => (
-              <span
-                key={perm.id}
-                className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-slate-100 text-slate-600 border border-slate-200"
-              >
+              <span key={perm.id} className={getPermissionBadgeClasses()}>
                 {perm.name}
               </span>
             ))

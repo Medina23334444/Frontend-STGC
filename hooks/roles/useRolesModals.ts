@@ -1,6 +1,5 @@
-// hooks/roles/useRolesModals.ts
 import { useState, useCallback } from 'react';
-import { Role } from '@/schemas/roles.schema'; 
+import { Role } from '@/types/rol'; 
 
 export function useRolesModals() {
   const [isModalOpen, setIsModalOpen] = useState(false);

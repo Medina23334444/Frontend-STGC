@@ -1,9 +1,8 @@
 'use client';
 
-// 1. Importa el componente compartido
 import { PageHeader } from '@/components/shared/PageHeader'; 
 import UserModal from '@/components/admin/UserModal';
-import { useUsers } from '@/hooks/useUsers';
+import { useUsers } from '@/hooks/user/useUsers';
 import { useUsersHandlers } from '@/hooks/user/useUsersHandlers';
 import { UsersTable } from '@/components/admin/UsersTable';
 import { PageBackground } from '@/components/shared/PageBackground';

@@ -12,7 +12,24 @@ export const registerSchema = z.object({
     .regex(/[@$!%*?&]/, 'Debe contener un carácter especial (@$!%*?&).')
     .regex(/^[A-Za-z\d@$!%*?&]+$/, 'Contiene caracteres inválidos (solo letras, números y @$!%*?&).'),
   
-  role_name: z.enum(['ADMIN', 'GERENTE_GENERAL', 'OPERADOR']), 
+  role_name: z.enum([
+  'ADMIN',
+  'GERENTE_GENERAL',
+  'GERENTE_OPERACIONES',
+  'CAPATAZ',
+  'SEMBRADOR',
+  'RECOLECTOR',
+  'CLASIFICADOR',
+  'TECNICO_DESPULPADO',
+  'ENCARGADO_SECADO',
+  'TOSTADOR',
+  'GESTOR_CALIDAD',
+  'TECNICO_ALMACENAMIENTO',
+  'CONTROLADOR_DESPACHO',
+  'GESTOR_INVENTARIO',
+  'PERSONAL_COCINA',
+  'CAJERO_MESERO',
+]),
   status: z.enum(['ACTIVO', 'INACTIVO']),
   
   first_name: z.string()

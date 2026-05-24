@@ -1,11 +1,12 @@
 // hooks/roles/useRolesHandlers.ts
 import { useCallback } from 'react';
 import { RoleCreate, RoleUpdate } from '@/types/rol';
-import { useRolesData } from './useRolesData';
 
-export function useRolesHandlers() {
-  const { createRole, updateRole, deleteRole } = useRolesData();
-
+export function useRolesHandlers(
+  createRole: (data: RoleCreate) => Promise<any>,
+  updateRole: (id: string, data: RoleUpdate) => Promise<any>,
+  deleteRole: (id: string) => Promise<void>,
+) {
   const handleCreateRole = useCallback(async (datos: RoleCreate) => {
     try {
       await createRole(datos);
@@ -33,9 +34,5 @@ export function useRolesHandlers() {
     }
   }, [deleteRole]);
 
-  return {
-    handleCreateRole,
-    handleEditRole,
-    handleDeleteRole,
-  };
+  return { handleCreateRole, handleEditRole, handleDeleteRole };
 }

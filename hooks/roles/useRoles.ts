@@ -1,33 +1,43 @@
-// hooks/rol/useRoles.ts
-import { useRolesFetch } from './useRolesFetch';
-import { useRolesMutations } from './useRolesMutations';
+// hooks/roles/useRoles.ts
+import { useEffect } from 'react';
+import { useRolesData } from './useRolesData';
 import { useRolesModals } from './useRolesModals'; 
+import { useRolesFormatting } from './useRolesFormatting'; 
+import { useRolesHandlers } from './useRolesHandlers';
 
 export function useRoles() {
-  const { roles, setRoles, permissions, fetchAll, loading, error } = useRolesFetch();
-  const { createRole, updateRole, deleteRole } = useRolesMutations(setRoles);
-  
-  const { 
-    isModalOpen, 
-    roleToEdit, 
-    openCreateModal, 
-    openEditModal, 
-    closeModal 
-  } = useRolesModals();
-  
+  const data = useRolesData();
+  const modals = useRolesModals();
+  const formatting = useRolesFormatting();
+  const { handleCreateRole, handleEditRole, handleDeleteRole } = useRolesHandlers(
+    data.createRole,
+    data.updateRole,
+    data.deleteRole,
+  );
+
+  const { fetchAll } = data;
+
+  useEffect(() => {
+    fetchAll();
+  }, [fetchAll]);
+
   return {
-    roles,
-    permissions,
-    loading,
-    error,
-    fetchAll,
-    createRole,
-    updateRole,
-    deleteRole,
-    isModalOpen,
-    roleToEdit,
-    openCreateModal,
-    openEditModal,
-    closeModal,
-  }; 
+    roles: data.roles,
+    permissions: data.permissions,
+    loading: data.loading,
+    error: data.error,
+    fetchAll: data.fetchAll,
+    handleCreateRole,
+    handleEditRole,
+    handleDeleteRole,
+    isModalOpen: modals.isModalOpen,
+    roleToEdit: modals.roleToEdit,
+    openCreateModal: modals.openCreateModal,
+    openEditModal: modals.openEditModal,
+    closeModal: modals.closeModal,
+    formatRoleName: formatting.formatRoleName,
+    formatDescription: formatting.formatDescription,
+    getRoleBadgeClasses: formatting.getRoleBadgeClasses,
+    getPermissionBadgeClasses: formatting.getPermissionBadgeClasses,
+  };
 }

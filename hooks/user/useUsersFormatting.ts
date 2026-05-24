@@ -16,7 +16,7 @@ interface UseUsersFormattingReturn {
   formatUserName: (user: User) => string;
   formatUserEmail: (email: string) => string;
   getRoleLabel: (role: string) => string;
-  getAllStatusOptions: Array<{ value: UserStatus; label: string }>; // ✅ CAMBIO: Quitar ()
+  getAllStatusOptions: Array<{ value: UserStatus; label: string }>; 
 }
 
 /**
