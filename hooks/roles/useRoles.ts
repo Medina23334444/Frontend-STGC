@@ -28,13 +28,22 @@ export function useRoles() {
     error: data.error,
     fetchAll: data.fetchAll,
     handleCreateRole,
-    handleEditRole,
-    handleDeleteRole,
+    handleEditRole,      // ¡Asegúrate de exportarlo!
+    handleDeleteRole,    // ¡Asegúrate de exportarlo!
+    
+    // Modales de Creación/Edición
     isModalOpen: modals.isModalOpen,
     roleToEdit: modals.roleToEdit,
     openCreateModal: modals.openCreateModal,
     openEditModal: modals.openEditModal,
     closeModal: modals.closeModal,
+
+    // Modales de Eliminación (Nuevos)
+    isDeleteModalOpen: modals.isDeleteModalOpen,
+    roleToDelete: modals.roleToDelete,
+    openDeleteModal: modals.openDeleteModal,
+    closeDeleteModal: modals.closeDeleteModal,
+
     formatRoleName: formatting.formatRoleName,
     formatDescription: formatting.formatDescription,
     getRoleBadgeClasses: formatting.getRoleBadgeClasses,

@@ -7,9 +7,10 @@ interface RolesTableProps {
   readonly roles: Role[];
   readonly loading: boolean;
   readonly onEdit: (role: Role) => void;
+  readonly onDelete: (role: Role) => void; 
 }
 
-export function RolesTable({ roles, loading, onEdit }: RolesTableProps) {
+export function RolesTable({ roles, loading, onEdit, onDelete }: RolesTableProps) {
   return (
     <DataTable
       headers={['Nombre', 'Descripción', 'Permisos', 'Acciones']}
@@ -18,7 +19,7 @@ export function RolesTable({ roles, loading, onEdit }: RolesTableProps) {
       emptyMessage="No hay roles registrados."
     >
       {roles.map((role) => (
-        <RolesTableRow key={role.id} role={role} onEdit={onEdit} />
+        <RolesTableRow key={role.id} role={role} onEdit={onEdit} onDelete={onDelete} />
       ))}
     </DataTable>
   );
@@ -27,9 +28,10 @@ export function RolesTable({ roles, loading, onEdit }: RolesTableProps) {
 interface RolesTableRowProps {
   readonly role: Role;
   readonly onEdit: (role: Role) => void;
+  readonly onDelete: (role: Role) => void; 
 }
 
-function RolesTableRow({ role, onEdit }: RolesTableRowProps) {
+function RolesTableRow({ role, onEdit, onDelete }: RolesTableRowProps) {
   const { 
     formatRoleName, 
     formatDescription, 
@@ -39,10 +41,9 @@ function RolesTableRow({ role, onEdit }: RolesTableRowProps) {
 
   return (
     <tr className="hover:bg-slate-50/50 transition-colors group">
+      {/* ... columnas anteriores iguales ... */}
       <td className="px-6 py-4">
-        <div className={getRoleBadgeClasses()}>
-          {formatRoleName(role.name)}
-        </div>
+        <div className={getRoleBadgeClasses()}>{formatRoleName(role.name)}</div>
       </td>
       <td className="px-6 py-4">
         <p className="text-sm text-slate-500">{formatDescription(role.description)}</p>
@@ -53,21 +54,33 @@ function RolesTableRow({ role, onEdit }: RolesTableRowProps) {
             <span className="text-xs text-slate-400 italic">Sin permisos</span>
           ) : (
             role.permissions.map((perm) => (
-              <span key={perm.id} className={getPermissionBadgeClasses()}>
-                {perm.name}
-              </span>
+              <span key={perm.id} className={getPermissionBadgeClasses()}>{perm.name}</span>
             ))
           )}
         </div>
       </td>
+
+      {/* Botones de acción */}
       <td className="px-6 py-4 text-center">
-        <button
-          type="button"
-          onClick={() => onEdit(role)}
-          className="text-slate-400 hover:text-sky-600 p-2 rounded-lg hover:bg-sky-50 transition-colors inline-block"
-        >
-          <span className="material-symbols-outlined text-sm">edit</span>
-        </button>
+        <div className="flex items-center justify-center gap-1">
+          <button
+            type="button"
+            onClick={() => onEdit(role)}
+            title="Editar Rol"
+            className="text-slate-400 hover:text-sky-600 p-2 rounded-lg hover:bg-sky-50 transition-colors inline-block"
+          >
+            <span className="material-symbols-outlined text-sm">edit</span>
+          </button>
+          
+          <button
+            type="button"
+            onClick={() => onDelete(role)}
+            title="Eliminar Rol"
+            className="text-slate-400 hover:text-red-600 p-2 rounded-lg hover:bg-red-50 transition-colors inline-block"
+          >
+            <span className="material-symbols-outlined text-sm">delete</span>
+          </button>
+        </div>
       </td>
     </tr>
   );

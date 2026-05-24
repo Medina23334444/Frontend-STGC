@@ -1,6 +1,3 @@
-// Antes: ✅ Ya está bien, solo actualizar tipos de retorno
-// Después: Agregar mejor manejo de errores
-
 // services/admin.service.ts
 import { apiFetch } from '@/lib/api';
 import { UserCreate, UserUpdate, User } from '@/types/user';
