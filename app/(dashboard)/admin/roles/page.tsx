@@ -14,7 +14,6 @@ import { Pagination } from '@/components/shared/Pagination';
 export default function RolesPage() {
   const { 
     roles, 
-    permissions,
     loading, 
     isModalOpen, 
     roleToEdit,
@@ -48,7 +47,7 @@ export default function RolesPage() {
       <div className="relative z-10 space-y-6">
         <PageHeader 
           title="Gestión de Roles"
-          description="Administra los roles del sistema y sus permisos asignados."
+          description="Administra los roles del sistema."
           buttonLabel="Nuevo Rol"
           onOpenCreate={openCreateModal}
         />
@@ -73,7 +72,6 @@ export default function RolesPage() {
           isOpen={isModalOpen} 
           onClose={closeModal} 
           onSubmit={onSubmitRole} 
-          availablePermissions={permissions} 
           initialData={roleToEdit} 
         />
 

@@ -2,14 +2,12 @@
 'use client';
 
 import { useRoleModal } from '@/hooks/roles/useRoleModal'; 
-import { Permission } from '@/schemas/permission.schema';
 import { RoleCreate, Role } from '@/types/rol';
 
 interface RoleModalProps {
   readonly isOpen: boolean;
   readonly onClose: () => void;
   readonly onSubmit: (data: RoleCreate) => Promise<void>;
-  readonly availablePermissions: Permission[];
   readonly initialData?: Role | null;
 }
 
@@ -17,19 +15,16 @@ export default function RoleModal({
   isOpen,
   onClose,
   onSubmit,
-  availablePermissions,
   initialData,
 }: RoleModalProps) {
   
   const {
-  register,
-  handleSubmit,
-  errors,
-  isSubmitting,
-  currentPermissions,
-  togglePermission,
-  handleFormSubmit,
-} = useRoleModal(onSubmit, onClose, isOpen, initialData);
+    register,
+    handleSubmit,
+    errors,
+    isSubmitting,
+    handleFormSubmit,
+  } = useRoleModal(onSubmit, onClose, isOpen, initialData);
 
   if (!isOpen) return null;
 
@@ -100,35 +95,6 @@ export default function RoleModal({
                     Mínimo 10 caracteres si desea agregar una descripción.
                   </span>
                 )}
-            </div>
-
-            {/* Permisos */}
-            <div>
-              <label htmlFor="permissions" className="block text-sm font-semibold text-slate-700 mb-1">
-                Permisos Asignados
-              </label>
-              <div className="max-h-48 overflow-y-auto border border-slate-200 rounded-xl p-2 space-y-1 bg-slate-50">
-                {availablePermissions.length === 0 ? (
-                  <p className="text-xs text-slate-400 text-center italic py-3">
-                    No hay permisos disponibles.
-                  </p>
-                ) : (
-                  availablePermissions.map((perm) => (
-                    <label
-                      key={perm.id}
-                      className="flex items-center gap-2 cursor-pointer p-1.5 hover:bg-slate-100 rounded-lg transition-colors"
-                    >
-                      <input
-                        type="checkbox"
-                        checked={currentPermissions.includes(perm.id)}
-                        onChange={() => togglePermission(perm.id)}
-                        className="rounded border-slate-300 text-sky-600 focus:ring-sky-500"
-                      />
-                      <span className="text-sm text-slate-700">{perm.name}</span>
-                    </label>
-                  ))
-                )}
-              </div>
             </div>
 
             {/* Acciones */}

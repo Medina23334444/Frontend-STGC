@@ -2,19 +2,15 @@
 import { useCallback } from 'react';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { rolesService } from '@/services/rol.service';
-import { permissionsService } from '@/services/permission.service';
 import { Role, RoleCreate, RoleUpdate } from '@/types/rol';
-import { Permission } from '@/types/permission';
 import { ApiError, createApiError } from '@/lib/errors/ApiErrors';
 import { RoleArraySchema } from '@/schemas/roles.schema';
-import { PermissionArraySchema } from '@/schemas/permission.schema'; 
 import { z } from 'zod';
 
 const rolesDataQueryKey = ['roles-data'] as const;
 
 type RolesDataQuery = {
   roles: Role[];
-  permissions: Permission[];
 };
 
 function normalizeQueryError(error: unknown): ApiError {
@@ -30,14 +26,10 @@ export function useRolesData() {
     queryKey: rolesDataQueryKey,
     queryFn: async () => {
       try {
-        const [rolesData, permsData] = await Promise.all([
-          rolesService.getAll(),
-          permissionsService.getAll(),
-        ]);
+        const rolesData = await rolesService.getAll();
 
         return {
           roles: RoleArraySchema.parse(rolesData),
-          permissions: PermissionArraySchema.parse(permsData),
         };
       } catch (error) {
         throw normalizeQueryError(error);
@@ -102,7 +94,6 @@ export function useRolesData() {
 
   return {
     roles: query.data?.roles ?? [],
-    permissions: query.data?.permissions ?? [],
     loading: query.isPending,
     error: query.error ?? null,
     fetchAll,

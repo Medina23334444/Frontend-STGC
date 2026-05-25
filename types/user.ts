@@ -14,21 +14,17 @@ export interface UserCreate {
 }
 
 export interface UserUpdate {
+  email?: string;
   role_name?: string | null;
   status?: UserStatus | null;
-}
-
-export interface PermissionOut {
-  id: string;
-  name: string;
-  description?: string;
+  phone_number?: string | null;
+  password?: string;
 }
 
 export interface RoleOut {
   id: string;
   name: string;
   description?: string;
-  permissions?: PermissionOut[];
 }
 
 export interface User {

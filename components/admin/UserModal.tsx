@@ -40,33 +40,41 @@ export default function UserModal({
         <div className="p-5 overflow-y-auto max-h-[70vh]">
           <form onSubmit={handleSubmit(handleFormSubmit)} className="space-y-4">
             
-            <div className="grid grid-cols-2 gap-4">
-              <FormField label="Nombre" error={errors.first_name?.message as string}>
-                <input {...register('first_name')} placeholder="Ej: Juan" className={inputClass} />
-              </FormField>
-              <FormField label="Apellido" error={errors.last_name?.message as string}>
-                <input {...register('last_name')} placeholder="Ej: Pérez" className={inputClass} />
-              </FormField>
-            </div>
+            {!isEditMode && (
+              <>
+                <div className="grid grid-cols-2 gap-4">
+                  <FormField label="Nombre" error={errors.first_name?.message as string}>
+                    <input {...register('first_name')} placeholder="Ej: Juan" className={inputClass} />
+                  </FormField>
+                  <FormField label="Apellido" error={errors.last_name?.message as string}>
+                    <input {...register('last_name')} placeholder="Ej: Pérez" className={inputClass} />
+                  </FormField>
+                </div>
 
-            <div className="grid grid-cols-2 gap-4">  
-            <FormField label="Identificador (DNI/CI)" error={errors.identifier?.message as string}>
-              <input {...register('identifier')} placeholder="Ej: 1105585181" className={inputClass} />
-            </FormField>
-            <FormField label="Número de Telefono" error={errors.phone?.message as string}>
-              <input {...register('phone')} placeholder="Ej: 0987654321" className={inputClass} />
-            </FormField>
-            </div>
+                <div className="grid grid-cols-2 gap-4">
+                  <FormField label="Identificador (DNI/CI)" error={errors.identifier?.message as string}>
+                    <input {...register('identifier')} placeholder="Ej: 1105585181" className={inputClass} />
+                  </FormField>
+                  <FormField label="Contraseña Temporal" error={errors.password?.message as string}>
+                    <input {...register('password')} type="password" placeholder="Mínimo 8 caracteres, incluyendo mayúsculas, minúsculas y números" className={inputClass} />
+                  </FormField>
+                </div>
+              </>
+            )}
+
+            {isEditMode && (
+              <div className="rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-800">
+                En edición solo se pueden modificar correo, teléfono, rol y estado.
+              </div>
+            )}
 
             <FormField label="Correo Electrónico" error={errors.email?.message as string}>
               <input {...register('email')} placeholder="Ej: juan.perez@finca.com" disabled={isEditMode} className={inputClass} />
             </FormField>
 
-            {!isEditMode && (
-              <FormField label="Contraseña Temporal" error={errors.password?.message as string}>
-                <input {...register('password')} type="password" placeholder="Mínimo 8 caracteres, incluyendo mayúsculas, minúsculas y números" className={inputClass} />
-              </FormField>
-            )}
+            <FormField label="Número de Teléfono" error={errors.phone_number?.message as string}>
+              <input {...register('phone_number')} placeholder="Ej: 0999999999" className={inputClass} />
+            </FormField>
 
             <div className="grid grid-cols-2 gap-4">
               <RoleSelector watch={watch} setValue={setValue} error={errors.role_name} />

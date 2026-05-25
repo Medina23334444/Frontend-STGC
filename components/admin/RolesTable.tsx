@@ -14,7 +14,7 @@ interface RolesTableProps {
 export function RolesTable({ roles, loading, onEdit, onDelete }: RolesTableProps) {
   return (
     <DataTable
-      headers={['Nombre', 'Descripción', 'Permisos', 'Acciones']}
+      headers={['Nombre', 'Descripción', 'Acciones']}
       loading={loading}
       isEmpty={roles.length === 0}
       emptyMessage="No hay roles registrados."
@@ -36,8 +36,7 @@ function RolesTableRow({ role, onEdit, onDelete }: RolesTableRowProps) {
   const { 
     formatRoleName, 
     formatDescription, 
-    getRoleBadgeClasses, 
-    getPermissionBadgeClasses 
+    getRoleBadgeClasses 
   } = useRolesFormatting();
 
   return (
@@ -48,17 +47,6 @@ function RolesTableRow({ role, onEdit, onDelete }: RolesTableRowProps) {
       </td>
       <td className="px-6 py-4">
         <p className="text-sm text-slate-500">{formatDescription(role.description)}</p>
-      </td>
-      <td className="px-6 py-4">
-        <div className="flex flex-wrap gap-1">
-          {role.permissions.length === 0 ? (
-            <span className="text-xs text-slate-400 italic">Sin permisos</span>
-          ) : (
-            role.permissions.map((perm) => (
-              <span key={perm.id} className={getPermissionBadgeClasses()}>{perm.name}</span>
-            ))
-          )}
-        </div>
       </td>
 
       {/* Botones de acción */}

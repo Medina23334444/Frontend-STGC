@@ -1,5 +1,6 @@
 // services/inventory.service.ts
 import { apiFetch } from '@/lib/api';
+import { InventarioItem, MovimientoFormData } from '@/types/inventory';
 import { LoteCafe, LoteFormData } from '@/types/traceability';
 
 export const inventoryService = {
@@ -25,5 +26,15 @@ export const inventoryService = {
     return await apiFetch(`/inventory/lotes/${id}`, { 
       method: 'DELETE'
     });
+  },
+  async registrarMovimiento(data: MovimientoFormData): Promise<any> {
+    return await apiFetch('/inventory/movimientos', { 
+      method: 'POST', 
+      body: JSON.stringify(data) 
+    });
+  },
+
+  async getItemsFisicos(): Promise<InventarioItem[]> {
+    return await apiFetch('/inventory/items'); 
   }
 };

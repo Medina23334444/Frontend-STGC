@@ -1,6 +1,6 @@
 // hooks/user/useUsersHandlers.ts
 import { useCallback } from 'react';
-import { RegisterFormInputs } from '../../schemas/user.schema';
+import { EditFormInputs, RegisterFormInputs } from '../../schemas/user.schema';
 import { useUsersData } from './useUsersData';
 import { toast } from 'sonner';
 import { ApiError } from '@/lib/errors/ApiErrors';
@@ -28,7 +28,7 @@ export function useUsersHandlers() {
     }
   }, [createUser]);
 
-  const handleEditUser = useCallback(async (userId: string, datos: RegisterFormInputs) => {
+  const handleEditUser = useCallback(async (userId: string, datos: EditFormInputs) => {
     try {
       await updateUser(userId, datos);
       toast.success('Usuario actualizado exitosamente');

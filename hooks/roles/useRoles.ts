@@ -27,7 +27,6 @@ export function useRoles() {
     setCurrentPage,
     totalPages,
 
-    permissions: data.permissions,
     loading: data.loading,
     error: data.error,
     fetchAll: data.fetchAll,
@@ -49,6 +48,5 @@ export function useRoles() {
     formatRoleName: formatting.formatRoleName,
     formatDescription: formatting.formatDescription,
     getRoleBadgeClasses: formatting.getRoleBadgeClasses,
-    getPermissionBadgeClasses: formatting.getPermissionBadgeClasses,
   };
 }
