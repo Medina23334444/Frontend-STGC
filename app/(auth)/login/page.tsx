@@ -1,12 +1,13 @@
 // app/(auth)/login/page.tsx
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useAuth } from '@/context/AuthContext';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { loginSchema, LoginFormInputs } from '@/schemas/auth.schema'; 
 import Link from 'next/link';
+import { consumeFlashToast } from '@/lib/toastFlash';
 
 export default function LoginPage() {
   const { login, loading } = useAuth();
@@ -21,6 +22,10 @@ export default function LoginPage() {
   } = useForm<LoginFormInputs>({
     resolver: zodResolver(loginSchema), 
   });
+
+  useEffect(() => {
+    consumeFlashToast();
+  }, []);
 
   const alEnviarFormulario = async (datos: LoginFormInputs) => {
     setErrorAnuncio(null);
@@ -189,9 +194,9 @@ export default function LoginPage() {
           <div className="mt-2 text-center">
             <p className="text-sm text-slate-500 font-medium">
               ¿Problemas de acceso?{' '}
-              <a className="text-sky-600 font-semibold hover:text-sky-700 transition-colors" href="#">
+              <button type="button" className="text-sky-600 font-semibold hover:text-sky-700 transition-colors cursor-pointer">
                 Soporte Técnico
-              </a>
+              </button>
             </p>
           </div>
 

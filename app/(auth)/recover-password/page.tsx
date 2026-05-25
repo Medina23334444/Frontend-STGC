@@ -6,6 +6,7 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { recoverSchema, RecoverFormInputs } from '@/schemas/auth.schema';
 import { authService } from '@/services/auth.service';
+import { toast } from 'sonner';
 
 export default function RecoverPasswordPage() {
   const [errorAnuncio, setErrorAnuncio] = useState<string | null>(null);
@@ -26,9 +27,13 @@ export default function RecoverPasswordPage() {
     setIsLoading(true);
     try {
       await authService.recoverPassword(datos.email);
-      setSuccessAnuncio('Si el correo existe en nuestro sistema, te hemos enviado las instrucciones para recuperar tu contraseña.');
+      const msg = 'Si el correo existe en nuestro sistema, te hemos enviado las instrucciones para recuperar tu contraseña.';
+      setSuccessAnuncio(msg);
+      toast.success(msg);
     } catch (err: any) {
-      setErrorAnuncio(err.message || 'Error al procesar la solicitud.');
+      const message = err?.message || 'Error al procesar la solicitud.';
+      setErrorAnuncio(message);
+      toast.error(message);
     } finally {
       setIsLoading(false);
     }

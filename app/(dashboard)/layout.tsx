@@ -4,6 +4,8 @@ import { useRouter, usePathname } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { useAuth } from '@/context/AuthContext';
+import { consumeFlashToast } from '@/lib/toastFlash';
+import { ConfirmModal } from '@/components/shared/ConfirmModal';
 
 export default function DashboardLayout({
   children,
@@ -15,6 +17,7 @@ export default function DashboardLayout({
   const pathname = usePathname();
   
   const [menuOpen, setMenuOpen] = useState(false);
+  const [isLogoutModalOpen, setIsLogoutModalOpen] = useState(false);
 
   useEffect(() => {
     if (!loading && !user) {
@@ -25,6 +28,10 @@ export default function DashboardLayout({
   useEffect(() => {
     setMenuOpen(false);
   }, [pathname]);
+
+  useEffect(() => {
+    consumeFlashToast();
+  }, []);
 
   if (loading) {
     return (
@@ -118,7 +125,7 @@ export default function DashboardLayout({
         </div>
         <div className={`${menuOpen ? 'block' : 'hidden'} md:block mt-6 md:mt-0`}>
           <button 
-            onClick={logout} 
+            onClick={() => setIsLogoutModalOpen(true)} 
             className="flex items-center gap-3 px-3 py-2.5 rounded-xl text-red-600 hover:bg-red-50 font-semibold text-sm transition w-full text-left cursor-pointer"
           >
             <span className="material-symbols-outlined text-xl">logout</span>
@@ -131,6 +138,18 @@ export default function DashboardLayout({
       <main className="flex-1 flex flex-col overflow-y-auto relative">
         {children}
       </main>
+
+      <ConfirmModal
+        isOpen={isLogoutModalOpen}
+        onClose={() => setIsLogoutModalOpen(false)}
+        onConfirm={logout}
+        title="Cerrar sesión"
+        description="¿Seguro que deseas cerrar sesión?"
+        confirmText="Sí, cerrar sesión"
+        cancelText="Cancelar"
+        icon="logout"
+        variant="warning"
+      />
     </div>
   );
 }
