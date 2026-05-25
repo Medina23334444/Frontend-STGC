@@ -1,10 +1,6 @@
 // lib/constants/userStatusStyles.ts
 import { UserStatus } from '@/types/user';
 
-/**
- * Configuración centralizada de estilos para estados de usuario
- * Esto permite agregar nuevos estados sin tocar los hooks
- */
 export const USER_STATUS_CONFIG: Record<UserStatus, {
   badge: string;
   dot: string;
@@ -32,7 +28,6 @@ export const USER_STATUS_CONFIG: Record<UserStatus, {
   },
 };
 
-// Getter functions para facilitar uso
 export const getUserStatusStyle = (status: UserStatus) => USER_STATUS_CONFIG[status];
 export const getUserStatusBadge = (status: UserStatus) => USER_STATUS_CONFIG[status].badge;
 export const getUserStatusDot = (status: UserStatus) => USER_STATUS_CONFIG[status].dot;

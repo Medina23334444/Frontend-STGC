@@ -1,5 +1,7 @@
 // schemas/user.schema.ts
 import * as z from 'zod';
+import { STATUS_VALUES } from '@/lib/constants/userStatuses';
+import { ROLE_VALUES } from '@/lib/constants/userRoles';
 
 export const registerSchema = z.object({
   email: z.email({ error: 'Formato de correo inválido.' }).min(1, 'El correo es obligatorio.'),
@@ -12,25 +14,8 @@ export const registerSchema = z.object({
     .regex(/[@$!%*?&]/, 'Debe contener un carácter especial (@$!%*?&).')
     .regex(/^[A-Za-z\d@$!%*?&]+$/, 'Contiene caracteres inválidos (solo letras, números y @$!%*?&).'),
   
-  role_name: z.enum([
-  'ADMIN',
-  'GERENTE_GENERAL',
-  'GERENTE_OPERACIONES',
-  'CAPATAZ',
-  'SEMBRADOR',
-  'RECOLECTOR',
-  'CLASIFICADOR',
-  'TECNICO_DESPULPADO',
-  'ENCARGADO_SECADO',
-  'TOSTADOR',
-  'GESTOR_CALIDAD',
-  'TECNICO_ALMACENAMIENTO',
-  'CONTROLADOR_DESPACHO',
-  'GESTOR_INVENTARIO',
-  'PERSONAL_COCINA',
-  'CAJERO_MESERO',
-]),
-  status: z.enum(['ACTIVO', 'INACTIVO']),
+  role_name: z.enum(ROLE_VALUES),
+  status: z.enum(STATUS_VALUES),
   
   first_name: z.string()
     .min(3, 'Si lo ingresas, debe tener al menos 3 letras.')
