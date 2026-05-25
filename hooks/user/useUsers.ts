@@ -1,4 +1,4 @@
-// hooks/users/useUsers.ts
+// hooks/user/useUsers.ts
 import { useEffect } from 'react';
 import { useUsersData } from './useUsersData';
 import { useUsersModals } from './useUsersModals';
@@ -14,7 +14,6 @@ export function useUsers() {
   }, [data.fetchUsers]);
 
   return {
-    // Data
     users: data.users,
     loading: data.loading,
     error: data.error,
@@ -23,7 +22,6 @@ export function useUsers() {
     updateUser: data.updateUser,
     deleteUser: data.deleteUser,
 
-    // Modals
     isCreateModalOpen: modals.isCreateModalOpen,
     openCreateModal: modals.openCreateModal,
     closeCreateModal: modals.closeCreateModal,
@@ -35,10 +33,13 @@ export function useUsers() {
     userToDelete: modals.userToDelete,
     openDeleteModal: modals.openDeleteModal,
     closeDeleteModal: modals.closeDeleteModal,
+    
+    isStatusModalOpen: modals.isStatusModalOpen,
+    statusChangeData: modals.statusChangeData,
+    openStatusModal: modals.openStatusModal,
+    closeStatusModal: modals.closeStatusModal,
 
-    // Formatting
     getStatusBadge: formatting.getStatusBadge,
-    getStatusDot: formatting.getStatusDot,
     getStatusLabel: formatting.getStatusLabel,
     formatUserName: formatting.formatUserName,
     formatUserEmail: formatting.formatUserEmail,

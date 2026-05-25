@@ -4,6 +4,7 @@ import { RegisterFormInputs } from '../../schemas/user.schema';
 import { useUsersData } from './useUsersData';
 import { toast } from 'sonner';
 import { ApiError } from '@/lib/errors/ApiErrors';
+import { UserStatus } from '@/types/user';
 
 export function useUsersHandlers() {
   const { createUser, updateUser, deleteUser } = useUsersData();
@@ -46,6 +47,7 @@ export function useUsersHandlers() {
     }
   }, [updateUser]);
 
+
   const handleDeleteUser = useCallback(async (userId: string) => {
     try {
       await deleteUser(userId);
@@ -65,9 +67,25 @@ export function useUsersHandlers() {
     }
   }, [deleteUser]);
 
+  const handleStatusChange = useCallback(async (userId: string, newStatus: UserStatus) => {
+    try {
+      await updateUser(userId, { status: newStatus } as any);
+      toast.success('Estado actualizado correctamente');
+    } catch (error) {
+      console.error('Error actualizando estado:', error);
+      if (error instanceof ApiError) {
+        toast.error(error.message);
+      } else {
+        toast.error('Ocurrió un error al cambiar el estado'); 
+      }
+      throw error;
+    }
+  }, [updateUser]);
+
   return {
     handleCreateUser,
     handleEditUser,
     handleDeleteUser,
+    handleStatusChange,
   };
 }

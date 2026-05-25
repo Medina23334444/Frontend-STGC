@@ -7,6 +7,7 @@ import { useUsersHandlers } from '@/hooks/user/useUsersHandlers';
 import { UsersTable } from '@/components/admin/UsersTable';
 import { PageBackground } from '@/components/shared/PageBackground';
 import { UsersError } from '@/components/admin/UsersError';
+import { ConfirmModal } from '@/components/shared/ConfirmModal';
 
 export default function AdminUsersPage() {
   const {
@@ -15,16 +16,25 @@ export default function AdminUsersPage() {
     error,
     fetchUsers,
     getStatusBadge,
-    getStatusDot,
     getStatusLabel,
     formatUserName,
+    
     isCreateModalOpen,
     openCreateModal,
     closeCreateModal,
+    
+    isEditModalOpen,
     openEditModal,
+    closeEditModal,
+    userToEdit,
+
+    isStatusModalOpen,
+    closeStatusModal,
+    statusChangeData,
+    openStatusModal,
   } = useUsers();
 
-  const { handleCreateUser } = useUsersHandlers();
+  const { handleCreateUser, handleEditUser, handleStatusChange } = useUsersHandlers();
 
   if (error) return <UsersError error={error} />;
 
@@ -45,16 +55,50 @@ export default function AdminUsersPage() {
           loading={loading}
           formatUserName={formatUserName}
           getStatusBadge={getStatusBadge}
-          getStatusDot={getStatusDot}
-          getStatusLabel={getStatusLabel}
           onEdit={openEditModal}
+          onChangeStatusClick={openStatusModal}
         />
 
+        {/* Modal para Crear Usuario */}
         <UserModal
           isOpen={isCreateModalOpen}
           onClose={closeCreateModal}
           onSuccess={fetchUsers}
           onSubmit={handleCreateUser}
+        />
+
+        {/* Modal para Editar Usuario  */}
+        <UserModal
+          isOpen={isEditModalOpen}
+          onClose={closeEditModal}
+          onSuccess={fetchUsers}
+          initialData={userToEdit}
+          onSubmit={async (data) => {
+            if (userToEdit) {
+              await handleEditUser(userToEdit.id, data);
+            }
+          }}
+        />
+
+        {/* Modal de Confirmación de Cambio de Estado */}
+        <ConfirmModal
+          isOpen={isStatusModalOpen}
+          onClose={closeStatusModal}
+          variant="warning"
+          icon="warning"
+          title="¿Cambiar estado del usuario?"
+          description={
+            <p>
+              Estás a punto de cambiar el estado de <strong>{statusChangeData?.user.email}</strong> a <strong className="text-sky-600">{statusChangeData?.newStatus && getStatusLabel(statusChangeData.newStatus)}</strong>. ¿Estás seguro?
+            </p>
+          }
+          confirmText="Sí, cambiar"
+          onConfirm={async () => {
+            if (statusChangeData) {
+              await handleStatusChange(statusChangeData.user.id, statusChangeData.newStatus);
+              await fetchUsers(); // Recarga la tabla para ver el cambio
+            }
+          }}
         />
       </div>
     </div>

@@ -1,6 +1,5 @@
 // lib/constants/userRoles.ts
 
-// 1. Única fuente de verdad para los identificadores de roles
 export const ROLE_VALUES = [
   'ADMIN',
   'GERENTE_GENERAL',
@@ -20,7 +19,6 @@ export const ROLE_VALUES = [
   'CAJERO_MESERO',
 ] as const;
 
-// 2. Mapeo visual para las interfaces del usuario (se asocia dinámicamente)
 export const USER_ROLES = [
   { value: 'ADMIN', label: 'Administrador' },
   { value: 'GERENTE_GENERAL', label: 'Gerente General' },
@@ -40,5 +38,4 @@ export const USER_ROLES = [
   { value: 'CAJERO_MESERO', label: 'Cajero / Mesero' },
 ] as const;
 
-// Tipado estricto automático derivado de la fuente de verdad
 export type UserRole = typeof ROLE_VALUES[number];

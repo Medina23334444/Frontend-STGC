@@ -5,9 +5,10 @@ import { PageBackground } from '@/components/shared/PageBackground';
 import { PageHeader } from '@/components/shared/PageHeader';
 import { RolesTable } from '@/components/admin/RolesTable';
 import RoleModal from '@/components/admin/RoleModal'; 
-import DeleteRoleConfirmModal from '@/components/admin/DeleteRoleConfirmModal';
 import { useRoles } from '@/hooks/roles/useRoles';
 import { RoleCreate, RoleUpdate } from '@/types/rol'; 
+import { ConfirmModal } from '@/components/shared/ConfirmModal';
+
 
 export default function RolesPage() {
   const { 
@@ -64,16 +65,23 @@ export default function RolesPage() {
           initialData={roleToEdit} 
         />
 
-        {/* Modal de Eliminar */}
-        <DeleteRoleConfirmModal
+        <ConfirmModal
           isOpen={isDeleteModalOpen}
           onClose={closeDeleteModal}
+          variant="danger" // Color rojo
+          icon="delete"
+          title="Eliminar Rol"
+          description={
+            <p>
+              ¿Estás seguro de que deseas eliminar el rol <strong className="text-slate-800">{roleToDelete?.name}</strong>? Esta acción no se puede deshacer.
+            </p>
+          }
+          confirmText="Sí, eliminar"
           onConfirm={async () => {
             if (roleToDelete) {
               await handleDeleteRole(roleToDelete.id);
             }
           }}
-          roleName={roleToDelete?.name || ''}
         />
       </div>
     </div>

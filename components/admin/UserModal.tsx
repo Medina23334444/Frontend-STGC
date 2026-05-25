@@ -4,11 +4,13 @@ import { useUserModal } from '@/hooks/user/useUserModal';
 import { RegisterFormInputs } from '@/schemas/user.schema';
 import { USER_ROLES } from '@/lib/constants/userRoles';
 import { USER_STATUSES } from '@/lib/constants/userStatuses';
+import { User } from '@/types/user';
 
 interface UserModalProps {
   readonly isOpen: boolean;
   readonly onClose: () => void;
   readonly onSuccess: () => void;
+  readonly initialData?: User | null;
   readonly onSubmit: (datos: RegisterFormInputs) => Promise<void>;
 }
 

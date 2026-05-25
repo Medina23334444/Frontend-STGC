@@ -1,6 +1,6 @@
-// hooks/users/useUsersModals.ts
+// hooks/user/useUsersModals.ts
 import { useState, useCallback } from 'react';
-import { User } from '@/types/user';
+import { User, UserStatus } from '@/types/user';
 
 interface UseUsersModalsReturn {
   readonly isCreateModalOpen: boolean;
@@ -14,6 +14,10 @@ interface UseUsersModalsReturn {
   readonly userToDelete: User | null;
   readonly openDeleteModal: (user: User) => void;
   readonly closeDeleteModal: () => void;
+  readonly isStatusModalOpen: boolean;
+  readonly statusChangeData: { user: User; newStatus: UserStatus } | null;
+  readonly openStatusModal: (user: User, newStatus: UserStatus) => void;
+  readonly closeStatusModal: () => void;
 }
 
 export function useUsersModals(): UseUsersModalsReturn {
@@ -22,6 +26,9 @@ export function useUsersModals(): UseUsersModalsReturn {
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [userToEdit, setUserToEdit] = useState<User | null>(null);
   const [userToDelete, setUserToDelete] = useState<User | null>(null);
+
+  const [isStatusModalOpen, setIsStatusModalOpen] = useState(false);
+  const [statusChangeData, setStatusChangeData] = useState<{ user: User; newStatus: UserStatus } | null>(null);
 
   const openCreateModal = useCallback(() => setIsCreateModalOpen(true), []);
   const closeCreateModal = useCallback(() => setIsCreateModalOpen(false), []);
@@ -46,17 +53,21 @@ export function useUsersModals(): UseUsersModalsReturn {
     setIsDeleteModalOpen(false);
   }, []);
 
+  const openStatusModal = useCallback((user: User, newStatus: UserStatus) => {
+    setStatusChangeData({ user, newStatus });
+    setIsStatusModalOpen(true);
+  }, []);
+
+  const closeStatusModal = useCallback(() => {
+    setStatusChangeData(null);
+    setIsStatusModalOpen(false);
+  }, []);
+
   return {
-    isCreateModalOpen,
-    openCreateModal,
-    closeCreateModal,
-    isEditModalOpen,
-    userToEdit,
-    openEditModal,
-    closeEditModal,
-    isDeleteModalOpen,
-    userToDelete,
-    openDeleteModal,
-    closeDeleteModal,
+    isCreateModalOpen, openCreateModal, closeCreateModal,
+    isEditModalOpen, userToEdit, openEditModal, closeEditModal,
+    isDeleteModalOpen, userToDelete, openDeleteModal, closeDeleteModal,
+    
+    isStatusModalOpen, statusChangeData, openStatusModal, closeStatusModal,
   };
 }
