@@ -8,6 +8,7 @@ import { UsersTable } from '@/components/admin/UsersTable';
 import { PageBackground } from '@/components/shared/PageBackground';
 import { UsersError } from '@/components/admin/UsersError';
 import { ConfirmModal } from '@/components/shared/ConfirmModal';
+import {Pagination} from '@/components/shared/Pagination';
 
 export default function AdminUsersPage() {
   const {
@@ -32,6 +33,10 @@ export default function AdminUsersPage() {
     closeStatusModal,
     statusChangeData,
     openStatusModal,
+
+    currentPage,
+    setCurrentPage,
+    totalPages,
   } = useUsers();
 
   const { handleCreateUser, handleEditUser, handleStatusChange } = useUsersHandlers();
@@ -57,6 +62,11 @@ export default function AdminUsersPage() {
           getStatusBadge={getStatusBadge}
           onEdit={openEditModal}
           onChangeStatusClick={openStatusModal}
+        />
+        <Pagination 
+          currentPage={currentPage} 
+          totalPages={totalPages} 
+          onPageChange={setCurrentPage} 
         />
 
         {/* Modal para Crear Usuario */}

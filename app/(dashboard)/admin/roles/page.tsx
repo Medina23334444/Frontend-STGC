@@ -8,6 +8,7 @@ import RoleModal from '@/components/admin/RoleModal';
 import { useRoles } from '@/hooks/roles/useRoles';
 import { RoleCreate, RoleUpdate } from '@/types/rol'; 
 import { ConfirmModal } from '@/components/shared/ConfirmModal';
+import { Pagination } from '@/components/shared/Pagination';
 
 
 export default function RolesPage() {
@@ -27,6 +28,9 @@ export default function RolesPage() {
     openDeleteModal,
     closeDeleteModal,
     handleDeleteRole,
+    currentPage,
+    setCurrentPage,
+    totalPages,
   } = useRoles();
 
   const onSubmitRole = async (data: RoleCreate | RoleUpdate) => {
@@ -55,6 +59,14 @@ export default function RolesPage() {
           onEdit={openEditModal} 
           onDelete={openDeleteModal} 
         />
+
+         <Pagination 
+          currentPage={currentPage} 
+          totalPages={totalPages} 
+          onPageChange={setCurrentPage} 
+        />
+
+
         
         {/* Modal de Crear / Editar */}
         <RoleModal 

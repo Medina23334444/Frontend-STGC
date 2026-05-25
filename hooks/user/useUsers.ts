@@ -1,20 +1,34 @@
 // hooks/user/useUsers.ts
-import { useEffect } from 'react';
+import { useState, useMemo, useEffect } from 'react'; // Asegúrate de importar esto
 import { useUsersData } from './useUsersData';
 import { useUsersModals } from './useUsersModals';
 import { useUsersFormatting } from './useUsersFormatting';
 
 export function useUsers() {
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 10;
+
   const data = useUsersData();
   const modals = useUsersModals();
   const formatting = useUsersFormatting();
+
+  const paginatedUsers = useMemo(() => {
+    const startIndex = (currentPage - 1) * itemsPerPage;
+    return data.users.slice(startIndex, startIndex + itemsPerPage);
+  }, [data.users, currentPage]);
+
+  const totalPages = Math.ceil(data.users.length / itemsPerPage);
 
   useEffect(() => {
     data.fetchUsers();
   }, [data.fetchUsers]);
 
   return {
-    users: data.users,
+    users: paginatedUsers, 
+    currentPage,
+    setCurrentPage,
+    totalPages,
+    
     loading: data.loading,
     error: data.error,
     fetchUsers: data.fetchUsers,
@@ -33,7 +47,6 @@ export function useUsers() {
     userToDelete: modals.userToDelete,
     openDeleteModal: modals.openDeleteModal,
     closeDeleteModal: modals.closeDeleteModal,
-    
     isStatusModalOpen: modals.isStatusModalOpen,
     statusChangeData: modals.statusChangeData,
     openStatusModal: modals.openStatusModal,
