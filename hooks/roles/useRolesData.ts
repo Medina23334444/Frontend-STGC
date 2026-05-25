@@ -1,5 +1,6 @@
 // hooks/roles/useRolesData.ts
-import { useState, useCallback } from 'react';
+import { useCallback } from 'react';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { rolesService } from '@/services/rol.service';
 import { permissionsService } from '@/services/permission.service';
 import { Role, RoleCreate, RoleUpdate } from '@/types/rol';
@@ -9,59 +10,104 @@ import { RoleArraySchema } from '@/schemas/roles.schema';
 import { PermissionArraySchema } from '@/schemas/permission.schema'; 
 import { z } from 'zod';
 
+const rolesDataQueryKey = ['roles-data'] as const;
+
+type RolesDataQuery = {
+  roles: Role[];
+  permissions: Permission[];
+};
+
+function normalizeQueryError(error: unknown): ApiError {
+  if (error instanceof ApiError) return error;
+  if (error instanceof z.ZodError) return new ApiError(422, 'Error de formato');
+  return createApiError(500, { message: 'Error desconocido' });
+}
+
 export function useRolesData() {
-  const [roles, setRoles] = useState<Role[]>([]);
-  const [permissions, setPermissions] = useState<Permission[]>([]);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<ApiError | null>(null);
+  const queryClient = useQueryClient();
+
+  const query = useQuery<RolesDataQuery, ApiError>({
+    queryKey: rolesDataQueryKey,
+    queryFn: async () => {
+      try {
+        const [rolesData, permsData] = await Promise.all([
+          rolesService.getAll(),
+          permissionsService.getAll(),
+        ]);
+
+        return {
+          roles: RoleArraySchema.parse(rolesData),
+          permissions: PermissionArraySchema.parse(permsData),
+        };
+      } catch (error) {
+        throw normalizeQueryError(error);
+      }
+    },
+  });
 
   const fetchAll = useCallback(async () => {
-    setLoading(true);
-    try {
-      const [rolesData, permsData] = await Promise.all([
-        rolesService.getAll(),
-        permissionsService.getAll()
-      ]);
-      setRoles(RoleArraySchema.parse(rolesData));
-      setPermissions(PermissionArraySchema.parse(permsData));
-    } catch (err) {
-      console.error('Error en fetchAll:', err);
-      if (err instanceof ApiError) setError(err);
-      else if (err instanceof z.ZodError) setError(new ApiError(422, 'Error de formato'));
-      else setError(createApiError(500, { message: 'Error desconocido' }));
-    } finally { 
-      setLoading(false); 
-    }
-  }, []);
+    await query.refetch();
+  }, [query.refetch]);
+
+  const updateCachedRoles = useCallback((updater: (currentRoles: Role[]) => Role[]) => {
+    queryClient.setQueryData<RolesDataQuery>(rolesDataQueryKey, (current) => {
+      if (!current) return current;
+      return {
+        ...current,
+        roles: updater(current.roles),
+      };
+    });
+  }, [queryClient]);
 
   const createRole = useCallback(async (data: RoleCreate) => {
     try {
       const newRole = await rolesService.create(data);
-      setRoles(prev => [...prev, newRole]);
+      updateCachedRoles((currentRoles) => [...currentRoles, newRole]);
       return newRole;
-    } catch (err: any) {
-      throw createApiError(err.statusCode || 500, err);
+    } catch (err: unknown) {
+      if (err instanceof ApiError) throw err;
+      const statusCode = typeof err === 'object' && err !== null && 'statusCode' in err
+        ? Number((err as { statusCode?: number }).statusCode) || 500
+        : 500;
+      throw createApiError(statusCode, err);
     }
-  }, []);
+  }, [updateCachedRoles]);
 
   const updateRole = useCallback(async (id: string, data: RoleUpdate) => {
     try {
       const updatedRole = await rolesService.update(id, data);
-      setRoles(prev => prev.map(r => r.id === id ? updatedRole : r));
+      updateCachedRoles((currentRoles) => currentRoles.map((role) => (role.id === id ? updatedRole : role)));
       return updatedRole;
-    } catch (err: any) {
-      throw createApiError(err.statusCode || 500, err);
+    } catch (err: unknown) {
+      if (err instanceof ApiError) throw err;
+      const statusCode = typeof err === 'object' && err !== null && 'statusCode' in err
+        ? Number((err as { statusCode?: number }).statusCode) || 500
+        : 500;
+      throw createApiError(statusCode, err);
     }
-  }, []);
+  }, [updateCachedRoles]);
 
   const deleteRole = useCallback(async (id: string) => {
     try {
       await rolesService.delete(id);
-      setRoles(prev => prev.filter(r => r.id !== id));
-    } catch (err: any) {
-      throw createApiError(err.statusCode || 500, err);
+      updateCachedRoles((currentRoles) => currentRoles.filter((role) => role.id !== id));
+    } catch (err: unknown) {
+      if (err instanceof ApiError) throw err;
+      const statusCode = typeof err === 'object' && err !== null && 'statusCode' in err
+        ? Number((err as { statusCode?: number }).statusCode) || 500
+        : 500;
+      throw createApiError(statusCode, err);
     }
-  }, []);
+  }, [updateCachedRoles]);
 
-  return { roles, permissions, loading, error, fetchAll, createRole, updateRole, deleteRole };
+  return {
+    roles: query.data?.roles ?? [],
+    permissions: query.data?.permissions ?? [],
+    loading: query.isPending,
+    error: query.error ?? null,
+    fetchAll,
+    createRole,
+    updateRole,
+    deleteRole,
+  };
 }

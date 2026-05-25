@@ -1,4 +1,5 @@
 // components/admin/RolesTable.tsx
+import { memo } from 'react';
 import { Role } from '@/types/rol';
 import { DataTable } from '@/components/shared/DataTable';
 import { useRolesFormatting } from '@/hooks/roles/useRolesFormatting';
@@ -19,7 +20,7 @@ export function RolesTable({ roles, loading, onEdit, onDelete }: RolesTableProps
       emptyMessage="No hay roles registrados."
     >
       {roles.map((role) => (
-        <RolesTableRow key={role.id} role={role} onEdit={onEdit} onDelete={onDelete} />
+        <MemoizedRolesTableRow key={role.id} role={role} onEdit={onEdit} onDelete={onDelete} />
       ))}
     </DataTable>
   );
@@ -85,3 +86,5 @@ function RolesTableRow({ role, onEdit, onDelete }: RolesTableRowProps) {
     </tr>
   );
 }
+
+const MemoizedRolesTableRow = memo(RolesTableRow);

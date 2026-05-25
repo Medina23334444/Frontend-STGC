@@ -1,14 +1,12 @@
 // hooks/roles/useRoles.ts
-import { useState, useMemo, useEffect } from 'react'; 
 import { useRolesData } from './useRolesData';
 import { useRolesModals } from './useRolesModals'; 
 import { useRolesFormatting } from './useRolesFormatting'; 
 import { useRolesHandlers } from './useRolesHandlers';
 import { ITEMS_PER_PAGE } from '@/lib/constants/pagination';
+import { useClientPagination } from '@/hooks/shared/useClientPagination';
 
 export function useRoles() {
-  const [currentPage, setCurrentPage] = useState(1);
-
   const data = useRolesData();
   const modals = useRolesModals();
   const formatting = useRolesFormatting();
@@ -18,22 +16,10 @@ export function useRoles() {
     data.deleteRole,
   );
 
-  const { fetchAll } = data;
-
-  useEffect(() => {
-    fetchAll();
-  }, [fetchAll]);
-
-  const paginatedRoles = useMemo(() => {
-    const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
-    return data.roles.slice(startIndex, startIndex + ITEMS_PER_PAGE);
-  }, [data.roles, currentPage]);
-
-  const totalPages = Math.ceil(data.roles.length / ITEMS_PER_PAGE);
-
-  useEffect(() => {
-    setCurrentPage(1);
-  }, [data.roles.length]);
+  const { currentPage, setCurrentPage, totalPages, paginatedItems: paginatedRoles } = useClientPagination({
+    items: data.roles,
+    pageSize: ITEMS_PER_PAGE,
+  });
 
   return {
     roles: paginatedRoles,

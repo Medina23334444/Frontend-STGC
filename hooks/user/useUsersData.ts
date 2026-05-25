@@ -1,5 +1,6 @@
 // hooks/useUsersData.ts
-import { useState, useCallback } from 'react';
+import { useCallback } from 'react';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { User, UserCreate, UserUpdate } from '@/types/user';
 import { adminService } from '@/services/admin.service';
 import { ApiError } from '@/lib/errors/ApiErrors';
@@ -43,67 +44,69 @@ interface UseUsersDataReturn {
  * - Loading states
  */
 export function useUsersData(): UseUsersDataReturn {
-  const [users, setUsers] = useState<User[]>([]);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<ApiError | null>(null);
+  const queryClient = useQueryClient();
+
+  const query = useQuery<User[], ApiError>({
+    queryKey: ['users'],
+    queryFn: async () => {
+      try {
+        const rawData = await adminService.getUsers();
+        return UserArraySchema.parse(rawData) as User[];
+      } catch (err) {
+        const apiError = err instanceof ApiError ? err : new ApiError(500, 'Error al obtener usuarios');
+        throw apiError;
+      }
+    },
+  });
 
   const fetchUsers = useCallback(async () => {
-    setLoading(true);
-    setError(null);
-    try {
-      const rawData = await adminService.getUsers();
-      // Zod valida y devuelve el tipo correcto
-      const validUsers = UserArraySchema.parse(rawData);
-      setUsers(validUsers as User[]); // Ahora es seguro
-    } catch (err) {
-      const apiError = err instanceof ApiError ? err : new ApiError(500, 'Error al obtener usuarios');
-      setError(apiError);
-      console.error('Error fetching users:', err);
-    } finally {
-      setLoading(false);
-    }
-  }, []);
+    await query.refetch();
+  }, [query.refetch]);
+
+  const updateCachedUsers = useCallback((updater: (currentUsers: User[]) => User[]) => {
+    queryClient.setQueryData<User[]>(['users'], (currentUsers) => {
+      if (!currentUsers) return currentUsers;
+      return updater(currentUsers);
+    });
+  }, [queryClient]);
 
   const createUser = useCallback(async (userData: UserCreate): Promise<User> => {
     try {
       const newUser = await adminService.registerUser(userData);
-      setUsers((prev) => [...prev, newUser]);
+      updateCachedUsers((currentUsers) => [...currentUsers, newUser]);
       return newUser;
-    } catch (err) {
+    } catch (err: unknown) {
       const apiError = err instanceof ApiError ? err : new ApiError(0, 'Error al crear usuario');
-      setError(apiError);
       throw apiError;
     }
-  }, []);
+  }, [updateCachedUsers]);
 
   const updateUser = useCallback(async (userId: string, updateData: UserUpdate): Promise<User> => {
     try {
       const updatedUser = await adminService.updateUser(userId, updateData);
-      setUsers((prev) =>
-        prev.map((user) => (user.id === userId ? updatedUser : user))
+      updateCachedUsers((currentUsers) =>
+        currentUsers.map((user) => (user.id === userId ? updatedUser : user))
       );
       return updatedUser;
-    } catch (err) {
+    } catch (err: unknown) {
       const apiError = err instanceof ApiError ? err : new ApiError(0, 'Error al actualizar usuario');
-      setError(apiError);
       throw apiError;
     }
-  }, []);
+  }, [updateCachedUsers]);
 
   const deleteUser = useCallback(async (userId: string): Promise<void> => {
     try {
-      setUsers((prev) => prev.filter((user) => user.id !== userId));
-    } catch (err) {
+      updateCachedUsers((currentUsers) => currentUsers.filter((user) => user.id !== userId));
+    } catch (err: unknown) {
       const apiError = err instanceof ApiError ? err : new ApiError(0, 'Error al eliminar usuario');
-      setError(apiError);
       throw apiError;
     }
-  }, []);
+  }, [updateCachedUsers]);
 
   return {
-    users,
-    loading,
-    error,
+    users: query.data ?? [],
+    loading: query.isPending,
+    error: query.error ?? null,
     fetchUsers,
     createUser,
     updateUser,

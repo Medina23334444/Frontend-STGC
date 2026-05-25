@@ -1,4 +1,5 @@
 // components/admin/UsersTable.tsx
+import { memo } from 'react';
 import { User, UserStatus } from '@/types/user';
 import { DataTable } from '@/components/shared/DataTable';
 import { USER_STATUSES } from '@/lib/constants/userStatuses';
@@ -28,7 +29,7 @@ export function UsersTable({
       emptyMessage="No hay usuarios registrados."
     >
       {users.map((user) => (
-        <UsersTableRow
+        <MemoizedUsersTableRow
           key={user.id}
           user={user}
           formatUserName={formatUserName}
@@ -114,3 +115,5 @@ function UsersTableRow({
     </tr>
   );
 }
+
+const MemoizedUsersTableRow = memo(UsersTableRow);
