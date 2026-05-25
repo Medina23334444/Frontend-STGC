@@ -1,3 +1,4 @@
+//components/admin/UserModal.tsx
 'use strict';
 import { JSX } from 'react';
 import { useUserModal } from '@/hooks/user/useUserModal';

@@ -1,24 +1,35 @@
-import * as z from 'zod';
+// types/inventory.ts
+import { EstadoProducto, TipoElemento, UnidadMedida, TipoMovimiento } from './enums';
 
-export const LoteSchema = z.object({
-  codigoLote: z
-    .string()
-    .min(1, 'El código de lote es obligatorio.'),
-  pesoKg: z
-    .string()
-    .min(1, 'El peso en kg es obligatorio.')
-    .refine((value) => !isNaN(parseFloat(value)) && parseFloat(value) > 0, {
-      message: 'El peso debe ser un número positivo.',
-    }),
-  tipoCafe: z.enum(['Pergamino', 'Café Oro', 'Cereza', 'Pasilla']),
-  estado: z.enum(['Secado', 'Bodega', 'En Proceso', 'Despachado']),
-  fechaIngreso: z.string().refine((value) => {
-    const date = new Date(value);
-    return !isNaN(date.getTime());
-  }, {
-    message: 'Ingresa una fecha de ingreso válida.',
-  })
-});
+export interface InventarioItem {
+  id: string;
+  sku: string;
+  nombre: string;
+  cantidad: number;
+  tipo: TipoElemento;
+  estado: EstadoProducto;
+  unidad_medida: UnidadMedida;
+  precio: number;
+  descripcion?: string | null;
+  fecha_caducidad?: string | null;
+  created_at: string;
+  updated_at: string;
+}
 
-export type LoteFormData = z.infer<typeof LoteSchema>;
-export type LoteCafe = LoteFormData & { id: string };
+export interface MovimientoStock {
+  id: string;
+  item_id: string;
+  cantidad: number;
+  tipo: TipoMovimiento;
+  fecha: string;
+  motivo: string;
+  lote_id?: string | null;
+}
+
+export interface MovimientoFormData {
+  item_id: string;
+  cantidad: number;
+  tipo: TipoMovimiento;
+  motivo: string;
+  lote_id?: string | null;
+}
