@@ -3,21 +3,21 @@ import { useState, useMemo, useEffect } from 'react'; // Asegúrate de importar 
 import { useUsersData } from './useUsersData';
 import { useUsersModals } from './useUsersModals';
 import { useUsersFormatting } from './useUsersFormatting';
+import { ITEMS_PER_PAGE } from '@/lib/constants/pagination';
 
 export function useUsers() {
   const [currentPage, setCurrentPage] = useState(1);
-  const itemsPerPage = 10;
 
   const data = useUsersData();
   const modals = useUsersModals();
   const formatting = useUsersFormatting();
 
   const paginatedUsers = useMemo(() => {
-    const startIndex = (currentPage - 1) * itemsPerPage;
-    return data.users.slice(startIndex, startIndex + itemsPerPage);
+    const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
+    return data.users.slice(startIndex, startIndex + ITEMS_PER_PAGE);
   }, [data.users, currentPage]);
 
-  const totalPages = Math.ceil(data.users.length / itemsPerPage);
+  const totalPages = Math.ceil(data.users.length / ITEMS_PER_PAGE);
 
   useEffect(() => {
     data.fetchUsers();

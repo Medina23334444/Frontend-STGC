@@ -1,13 +1,13 @@
 // hooks/roles/useRoles.ts
-import { useState, useMemo, useEffect } from 'react'; // <--- Importa useState y useMemo
+import { useState, useMemo, useEffect } from 'react'; 
 import { useRolesData } from './useRolesData';
 import { useRolesModals } from './useRolesModals'; 
 import { useRolesFormatting } from './useRolesFormatting'; 
 import { useRolesHandlers } from './useRolesHandlers';
+import { ITEMS_PER_PAGE } from '@/lib/constants/pagination';
 
 export function useRoles() {
   const [currentPage, setCurrentPage] = useState(1);
-  const itemsPerPage = 10;
 
   const data = useRolesData();
   const modals = useRolesModals();
@@ -25,11 +25,11 @@ export function useRoles() {
   }, [fetchAll]);
 
   const paginatedRoles = useMemo(() => {
-    const startIndex = (currentPage - 1) * itemsPerPage;
-    return data.roles.slice(startIndex, startIndex + itemsPerPage);
+    const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
+    return data.roles.slice(startIndex, startIndex + ITEMS_PER_PAGE);
   }, [data.roles, currentPage]);
 
-  const totalPages = Math.ceil(data.roles.length / itemsPerPage);
+  const totalPages = Math.ceil(data.roles.length / ITEMS_PER_PAGE);
 
   useEffect(() => {
     setCurrentPage(1);
