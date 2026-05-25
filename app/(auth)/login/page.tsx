@@ -5,7 +5,8 @@ import { useState } from 'react';
 import { useAuth } from '@/context/AuthContext';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { loginSchema, LoginFormInputs } from '@/schemas/auth.schema'; // 🧠 Importado de la capa de reglas de negocio
+import { loginSchema, LoginFormInputs } from '@/schemas/auth.schema'; 
+import Link from 'next/link';
 
 export default function LoginPage() {
   const { login, loading } = useAuth();
@@ -107,9 +108,9 @@ export default function LoginPage() {
                 <label className="text-xs font-bold text-slate-500 uppercase tracking-wider" htmlFor="password">
                   Contraseña
                 </label>
-                <a className="text-sm font-semibold text-sky-600 hover:text-sky-700 transition-colors" href="#">
+                <Link className="text-sm font-semibold text-sky-600 hover:text-sky-700 transition-colors" href="/recover-password">
                   ¿Olvidaste tu clave?
-                </a>
+                </Link>
               </div>
               <div className="relative">
                 <span className="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-slate-400">
