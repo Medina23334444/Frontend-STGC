@@ -25,5 +25,19 @@ export const authService = {
       if (error instanceof ApiError) throw error;
       throw new ApiError(0, 'Error al cerrar sesión');
     }
+  },
+
+  async recoverPassword(email: string) {
+    return await apiFetch('/auth/recover-password', {
+      method: 'POST',
+      body: JSON.stringify({ email }),
+    });
+  },
+
+  async resetPassword(token: string, new_password: string) {
+    return await apiFetch('/auth/reset-password', {
+      method: 'POST',
+      body: JSON.stringify({ token, new_password }),
+    });
   }
 };
