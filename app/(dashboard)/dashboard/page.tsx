@@ -6,7 +6,6 @@ import { useAuth } from '@/context/AuthContext';
 export default function DashboardPage() {
   const { user } = useAuth();
 
-  // Tarjetas informativas de ejemplo
   const metricas = [
     { id: 1, titulo: 'Lotes en Monitoreo', valor: '12 Lotes', icono: 'potted_plant', color: 'text-emerald-600', bg: 'bg-emerald-50' },
     { id: 2, titulo: 'Café en Bodega', valor: '4,250 kg', icono: 'inventory_2', color: 'text-amber-600', bg: 'bg-amber-50' },

@@ -96,7 +96,7 @@ export default function AdminUsersPage() {
           onConfirm={async () => {
             if (statusChangeData) {
               await handleStatusChange(statusChangeData.user.id, statusChangeData.newStatus);
-              await fetchUsers(); // Recarga la tabla para ver el cambio
+              await fetchUsers(); 
             }
           }}
         />
