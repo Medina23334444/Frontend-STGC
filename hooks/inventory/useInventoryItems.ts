@@ -1,55 +1,88 @@
-// hooks/inventory/useInventoryItems.ts
-import { useState, useMemo, useEffect } from 'react';
-import { useInventoryItemsData } from './useInventoryItemsData';
-import { useInventoryItemsModals } from './useInventoryItemsModals';
+import { useState, useMemo, useEffect, useCallback } from 'react';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { useClientPagination } from '@/hooks/shared/useClientPagination';
-import { CrearInventarioItemFormData, MovimientoFormData } from '@/types/inventory';
+import { 
+  InventarioItem, 
+  CrearInventarioItemFormData, 
+  MovimientoFormData, 
+  MovimientoStock 
+} from '@/types/inventory';
 import { TipoElemento } from '@/types/enums';
+import { inventoryService } from '@/services/inventory.service';
+import { ApiError } from '@/lib/errors/ApiErrors';
 
-export const useInventoryItems = () => {
-  const { items, loading, createItem, registrarMovimiento } = useInventoryItemsData();
-  const modals = useInventoryItemsModals();
+export function useInventoryItems() {
+  const queryClient = useQueryClient();
 
-  // Estados locales para filtros y búsquedas
   const [busqueda, setBusqueda] = useState('');
   const [filtroTipo, setFiltroTipo] = useState<TipoElemento | 'TODOS'>('TODOS');
 
-  // Submiters (Conectan los modales con React Query)
-  const handleGuardarItem = async (data: CrearInventarioItemFormData) => {
-    await createItem(data);
-    modals.setIsItemModalOpen(false);
-  };
+  const [isItemModalOpen, setIsItemModalOpen] = useState(false);
+  const [isMovementModalOpen, setIsMovementModalOpen] = useState(false);
+  const [selectedItem, setSelectedItem] = useState<InventarioItem | null>(null);
 
-  const handleGuardarMovimiento = async (data: MovimientoFormData) => {
-    await registrarMovimiento(data);
-    modals.setIsMovimientoModalOpen(false);
-    modals.setItemSeleccionado(null);
-  };
+  const query = useQuery<InventarioItem[], ApiError>({
+    queryKey: ['inventory-items'],
+    queryFn: async () => {
+      try {
+        return await inventoryService.getItems();
+      } catch (err) {
+        throw err instanceof ApiError 
+          ? err 
+          : new ApiError(500, 'Error al obtener ítems de inventario');
+      }
+    },
+  });
 
-  // Filtrado
   const itemsFiltrados = useMemo(() => {
+    const items = query.data ?? [];
     return items.filter((item) => {
       const coincideBusqueda = 
         item.nombre.toLowerCase().includes(busqueda.toLowerCase()) || 
         item.sku.toLowerCase().includes(busqueda.toLowerCase());
       const coincideTipo = filtroTipo === 'TODOS' || item.tipo === filtroTipo;
-      
       return coincideBusqueda && coincideTipo;
     });
-  }, [busqueda, filtroTipo, items]);
+  }, [busqueda, filtroTipo, query.data]);
 
-  // Paginación
   const { currentPage, setCurrentPage, totalPages, paginatedItems } = useClientPagination({
     items: itemsFiltrados,
     pageSize: 8,
   });
 
-  // Resetear página al filtrar
   useEffect(() => {
     setCurrentPage(1);
   }, [busqueda, filtroTipo, setCurrentPage]);
 
-  // Estilos para los badges de Estado
+  const createItem = useCallback(async (data: CrearInventarioItemFormData): Promise<InventarioItem> => {
+    const newItem = await inventoryService.createItem(data);
+    queryClient.setQueryData<InventarioItem[]>(['inventory-items'], (current) => {
+      if (!current) return [newItem];
+      return [...current, newItem];
+    });
+    return newItem;
+  }, [queryClient]);
+
+  const registrarMovimiento = useCallback(async (data: MovimientoFormData): Promise<MovimientoStock> => {
+    const movimiento = await inventoryService.registrarMovimiento(data);
+    await queryClient.invalidateQueries({ queryKey: ['inventory-items'] });
+    return movimiento;
+  }, [queryClient]);
+
+  const handleAbrirCrearItem = useCallback(() => {
+    setIsItemModalOpen(true);
+  }, []);
+
+  const handleAbrirMovimiento = useCallback((item: InventarioItem) => {
+    setSelectedItem(item);
+    setIsMovementModalOpen(true);
+  }, []);
+
+  const handleCerrarMovimiento = useCallback(() => {
+    setIsMovementModalOpen(false);
+    setSelectedItem(null);
+  }, []);
+
   const getEstadoEstilo = (estado: string) => {
     switch (estado) {
       case 'DISPONIBLE': return 'bg-emerald-50 text-emerald-700 border-emerald-200/80';
@@ -60,28 +93,31 @@ export const useInventoryItems = () => {
   };
 
   return {
-    busqueda, setBusqueda,
-    filtroTipo, setFiltroTipo,
+    items: paginatedItems,
+    loading: query.isPending,
+    error: query.error,
     
-    // Modales y estados
-    isItemModalOpen: modals.isItemModalOpen,
-    setIsItemModalOpen: modals.setIsItemModalOpen,
-    isMovimientoModalOpen: modals.isMovimientoModalOpen,
-    setIsMovimientoModalOpen: modals.setIsMovimientoModalOpen,
-    itemSeleccionado: modals.itemSeleccionado,
+    busqueda,
+    setBusqueda,
+    filtroTipo,
+    setFiltroTipo,
     
-    // Datos y tablas
-    itemsPaginados: paginatedItems,
     currentPage,
     totalPages,
     setCurrentPage,
-    cargando: loading,
     
-    // Handlers
-    handleAbrirCrearItem: modals.handleAbrirCrearItem,
-    handleAbrirMovimiento: modals.handleAbrirMovimiento,
-    handleGuardarItem,
-    handleGuardarMovimiento,
+    isItemModalOpen,
+    setIsItemModalOpen,
+    isMovementModalOpen,
+    setIsMovementModalOpen,
+    selectedItem,
+    
+    createItem,
+    registrarMovimiento,
+    
+    handleAbrirCrearItem,
+    handleAbrirMovimiento,
+    handleCerrarMovimiento,
     getEstadoEstilo,
   };
-};
+}

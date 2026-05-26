@@ -1,59 +1,61 @@
 // hooks/inventory/useInventoryData.ts
 import { useCallback } from 'react';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
-import { LoteCafe, LoteFormData } from '@/types/traceability';
+import { 
+  InventarioItem, 
+  CrearInventarioItemFormData, 
+  MovimientoFormData, 
+  MovimientoStock 
+} from '@/types/inventory';
 import { inventoryService } from '@/services/inventory.service';
 import { ApiError } from '@/lib/errors/ApiErrors';
 
 export function useInventoryData() {
   const queryClient = useQueryClient();
 
-  const query = useQuery<LoteCafe[], ApiError>({
-    queryKey: ['inventory-lotes'],
+  const query = useQuery<InventarioItem[], ApiError>({
+    queryKey: ['inventory-items'],
     queryFn: async () => {
       try {
-        return await inventoryService.getAll();
+        return await inventoryService.getItems();
       } catch (err) {
-        throw err instanceof ApiError ? err : new ApiError(500, 'Error al obtener lotes');
+        throw err instanceof ApiError 
+          ? err 
+          : new ApiError(500, 'Error al obtener ítems de inventario');
       }
     },
   });
 
-  const fetchInventario = useCallback(async () => {
-    await query.refetch();
-  }, [query.refetch]);
-
-  const updateCached = useCallback((updater: (current: LoteCafe[]) => LoteCafe[]) => {
-    queryClient.setQueryData<LoteCafe[]>(['inventory-lotes'], (current) => {
-      if (!current) return updater([]);
-      return updater(current);
+  const createItem = useCallback(async (data: CrearInventarioItemFormData): Promise<InventarioItem> => {
+    const newItem = await inventoryService.createItem(data);
+    
+    queryClient.setQueryData<InventarioItem[]>(['inventory-items'], (current) => {
+      if (!current) return [newItem];
+      return [...current, newItem];
     });
+    
+    return newItem;
   }, [queryClient]);
 
-  const createLote = useCallback(async (data: LoteFormData): Promise<LoteCafe> => {
-    const newLote = await inventoryService.create(data);
-    updateCached((current) => [...current, newLote]);
-    return newLote;
-  }, [updateCached]);
+  const registrarMovimiento = useCallback(async (data: MovimientoFormData): Promise<MovimientoStock> => {
+    const movimiento = await inventoryService.registrarMovimiento(data);
+    // Invalidamos para obtener las cantidades actualizadas del backend
+    await queryClient.invalidateQueries({ queryKey: ['inventory-items'] });
+    return movimiento;
+  }, [queryClient]);
 
-  const updateLote = useCallback(async (id: string, data: Partial<LoteFormData>): Promise<LoteCafe> => {
-    const updatedLote = await inventoryService.update(id, data);
-    updateCached((current) => current.map((lote) => (lote.id === id ? updatedLote : lote)));
-    return updatedLote;
-  }, [updateCached]);
-
-  const deleteLote = useCallback(async (id: string): Promise<void> => {
-    await inventoryService.delete(id);
-    updateCached((current) => current.filter((lote) => lote.id !== id));
-  }, [updateCached]);
+  const refetch = useCallback(async () => {
+    await query.refetch();
+  }, [query]);
 
   return {
-    inventario: query.data ?? [],
-    loading: query.isPending,
-    error: query.error ?? null,
-    fetchInventario,
-    createLote,
-    updateLote,
-    deleteLote,
+    items: query.data ?? [],
+    isLoading: query.isPending,
+    isError: query.isError,
+    error: query.error,
+    
+    createItem,
+    registrarMovimiento,
+    refetch,
   };
 }

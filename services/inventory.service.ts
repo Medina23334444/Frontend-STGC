@@ -1,30 +1,32 @@
+// services/inventory.service.ts
 import { apiFetch } from '@/lib/api';
-import { InventarioItem, MovimientoFormData, CrearInventarioItemFormData, MovimientoStock } from '@/types/inventory';
+import { 
+  InventarioItem, 
+  MovimientoFormData, 
+  CrearInventarioItemFormData, 
+  MovimientoStock 
+} from '@/types/inventory';
 
-export const inventoryItemsService = {
-  // GET /inventario -> Obtener todos los ítems
-  async getItemsFisicos(): Promise<InventarioItem[]> {
-    return await apiFetch('/inventory/items'); 
+export const inventoryService = {
+  async getItems(): Promise<InventarioItem[]> {
+    return await apiFetch('/inventory');
   },
-  
-  // GET /inventario/{id} -> Detalle de un ítem
+
   async getItemById(id: string): Promise<InventarioItem> {
-    return await apiFetch(`/inventory/items/${id}`);
+    return await apiFetch(`/inventory/${id}`);
   },
 
-  // POST /inventario -> Crear nuevo ítem
   async createItem(data: CrearInventarioItemFormData): Promise<InventarioItem> {
-    return await apiFetch('/inventory/items', { 
+    return await apiFetch('/inventory', { 
       method: 'POST', 
       body: JSON.stringify(data) 
     });
   },
 
-  // POST /inventario/movimientos -> Registrar movimiento de stock
   async registrarMovimiento(data: MovimientoFormData): Promise<MovimientoStock> {
-    return await apiFetch('/inventory/movimientos', { 
+    return await apiFetch('/inventory/movements', { 
       method: 'POST', 
       body: JSON.stringify(data) 
     });
-  }
+  },
 };

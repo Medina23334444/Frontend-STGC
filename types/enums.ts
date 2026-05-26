@@ -1,36 +1,31 @@
 // types/enums.ts
 
-export type EstadoProducto = 
-  | 'DISPONIBLE' 
-  | 'AGOTADO' 
-  | 'STOCK_BAJO' 
-  | 'INACTIVO' 
-  | 'EN_TRANSITO' 
-  | 'BLOQUEADO' 
-  | 'CADUCADO';
+export enum TipoElemento {
+  INSUMO = 'INSUMO',
+  PRODUCTO = 'PRODUCTO',
+  CAFE_PROCESADO = 'CAFE_PROCESADO',
+}
 
-export type TipoElemento = 
-  | 'INSUMO' 
-  | 'PRODUCTO' 
-  | 'CAFE_PROCESADO';
+export enum EstadoProducto {
+  DISPONIBLE = 'DISPONIBLE',
+  AGOTADO = 'AGOTADO',
+  STOCK_BAJO = 'STOCK_BAJO',
+  INACTIVO = 'INACTIVO',
+  EN_TRANSITO = 'EN_TRANSITO',
+  BLOQUEADO = 'BLOQUEADO',
+  CADUCADO = 'CADUCADO',
+}
 
-export type UnidadMedida = 
-  | 'QUINTALES' 
-  | 'ARROBAS' 
-  | 'LIBRAS';
+export enum UnidadMedida {
+  QUINTALES = 'QUINTALES',
+  ARROBAS = 'ARROBAS',
+  LIBRAS = 'LIBRAS',
+  LITROS = 'LITROS',
+  UNIDADES = 'UNIDADES',
+  KILOS = 'KILOS',
+}
 
-export type CalidadCafe = 
-  | 'ALTA' 
-  | 'MEDIA' 
-  | 'BAJA';
-
-export type FaseCafe = 
-  | 'PULPA' 
-  | 'DESPULPADO' 
-  | 'SECADO' 
-  | 'TOSTADO' 
-  | 'MOLIDO';
-
-export type TipoMovimiento = 
-  | 'ENTRADA' 
-  | 'SALIDA';
+export enum TipoMovimiento {
+  ENTRADA = 'ENTRADA',
+  SALIDA = 'SALIDA',
+}

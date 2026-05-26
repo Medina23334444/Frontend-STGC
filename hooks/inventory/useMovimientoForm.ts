@@ -1,6 +1,7 @@
 // hooks/inventory/useMovimientoForm.ts
 import { useState, useEffect } from 'react';
 import { MovimientoFormData, InventarioItem } from '@/types/inventory';
+import { RegistrarMovimientoSchema } from '@/schemas/inventory.schem';
 
 interface UseMovimientoFormParams {
   isOpen: boolean;
@@ -18,7 +19,9 @@ export function useMovimientoForm({ isOpen, item, onSubmit, onClose }: UseMovimi
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [fieldErrors, setFieldErrors] = useState<Partial<Record<keyof MovimientoFormData, string>>>({});
 
+  // Inicializar formulario con el ítem seleccionado
   useEffect(() => {
     if (isOpen && item) {
       setForm({
@@ -28,27 +31,68 @@ export function useMovimientoForm({ isOpen, item, onSubmit, onClose }: UseMovimi
         motivo: '',
       });
       setError(null);
+      setFieldErrors({});
     }
   }, [isOpen, item]);
 
-  const updateField = <K extends keyof MovimientoFormData>(field: K, value: MovimientoFormData[K]) => {
+  const updateField = <K extends keyof MovimientoFormData>(
+    field: K, 
+    value: MovimientoFormData[K]
+  ) => {
     setForm((current) => ({ ...current, [field]: value }));
+    setFieldErrors((current) => {
+      const next = { ...current };
+      delete next[field];
+      return next;
+    });
   };
 
   const handleSubmit = async (event: React.SyntheticEvent<HTMLFormElement>) => {
     event.preventDefault();
+
+    // Validar con Zod
+    const validation = RegistrarMovimientoSchema.safeParse(form);
+
+    if (!validation.success) {
+      const nextFieldErrors: Partial<Record<keyof MovimientoFormData, string>> = {};
+      validation.error.issues.forEach((issue) => {
+        const fieldName = issue.path[0] as keyof MovimientoFormData | undefined;
+        if (fieldName && !nextFieldErrors[fieldName]) {
+          nextFieldErrors[fieldName] = issue.message;
+        }
+      });
+      setFieldErrors(nextFieldErrors);
+      setError(null);
+      return;
+    }
+
     setIsSubmitting(true);
     setError(null);
+    setFieldErrors({});
 
     try {
-      await onSubmit(form);
+      await onSubmit(validation.data);
       onClose();
-    } catch (submitError: any) {
-      setError(submitError?.message || 'Error al registrar el movimiento.');
+    } catch (submitError: unknown) {
+      const message = submitError instanceof Error 
+        ? submitError.message 
+        : 'Error al registrar el movimiento.';
+      setError(message);
     } finally {
       setIsSubmitting(false);
     }
   };
 
-  return { form, isSubmitting, error, updateField, handleSubmit };
+  let submitLabel = 'Confirmar Movimiento';
+  if (isSubmitting) submitLabel = 'Registrando...';
+
+  return {
+    form,
+    isSubmitting,
+    error,
+    fieldErrors,
+    submitLabel,
+    updateField,
+    handleSubmit,
+  };
 }

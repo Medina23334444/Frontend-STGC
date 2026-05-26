@@ -1,61 +1,50 @@
 // hooks/inventory/useInventoryModals.ts
 import { useState, useCallback } from 'react';
-import { LoteCafe, LoteFormData } from '@/types/traceability';
+import { InventarioItem } from '@/types/inventory';
 
 export function useInventoryModals() {
-  const [isModalOpen, setIsModalOpen] = useState(false);
-  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
-  const [loteAEliminar, setLoteAEliminar] = useState<LoteCafe | null>(null);
-  const [loteEditando, setLoteEditando] = useState<LoteCafe | null>(null);
-  const [defaultValoresModal, setDefaultValoresModal] = useState<Partial<LoteFormData>>({});
+  const [isItemModalOpen, setIsItemModalOpen] = useState(false);
+  
+  const [isMovementModalOpen, setIsMovementModalOpen] = useState(false);
+  
+  const [selectedItem, setSelectedItem] = useState<InventarioItem | null>(null);
 
-  const handleAbrirCrear = useCallback(() => {
-    setLoteEditando(null);
-    setDefaultValoresModal({
-      variedad: '',
-      fase: 'PULPA', 
-      cantidad_producida: 0,
-      costo_produccion: 0,
-      unidad_medida: 'QUINTALES', 
-      calidad: 'ALTA'
-    });
-    setIsModalOpen(true);
+  const abrirCrearItem = useCallback(() => {
+    setIsItemModalOpen(true);
   }, []);
 
-  const handleAbrirEditar = useCallback((lote: LoteCafe) => {
-    setLoteEditando(lote);
-    setDefaultValoresModal({
-      variedad: lote.variedad,
-      fase: lote.fase,
-      cantidad_producida: lote.cantidad_producida,
-      costo_produccion: lote.costo_produccion,
-      unidad_medida: lote.unidad_medida,
-      calidad: lote.calidad,
-    });
-    setIsModalOpen(true);
+  const cerrarItemModal = useCallback(() => {
+    setIsItemModalOpen(false);
   }, []);
 
-  const abrirEliminar = useCallback((lote: LoteCafe) => {
-    setLoteAEliminar(lote);
-    setIsDeleteModalOpen(true);
+  const abrirMovimiento = useCallback((item: InventarioItem) => {
+    setSelectedItem(item);
+    setIsMovementModalOpen(true);
   }, []);
 
-  const handleEliminarLote = useCallback((id: string, inventario: LoteCafe[]) => {
-    const lote = inventario.find(item => item.id === id);
-    if (lote) {
-      abrirEliminar(lote);
-    }
-  }, [abrirEliminar]);
+  const cerrarMovimiento = useCallback(() => {
+    setIsMovementModalOpen(false);
+    setTimeout(() => setSelectedItem(null), 200);
+  }, []);
+
+  const cerrarTodos = useCallback(() => {
+    setIsItemModalOpen(false);
+    setIsMovementModalOpen(false);
+    setTimeout(() => setSelectedItem(null), 200);
+  }, []);
 
   return {
-    isModalOpen, setIsModalOpen,
-    isDeleteModalOpen, setIsDeleteModalOpen,
-    loteAEliminar, setLoteAEliminar,
-    loteEditando, setLoteEditando,
-    defaultValoresModal,
-    handleAbrirCrear,
-    handleAbrirEditar,
-    handleEliminarLote,
-    abrirEliminar
+    isItemModalOpen,
+    isMovementModalOpen,
+    selectedItem,
+    
+    setIsItemModalOpen,
+    setIsMovementModalOpen,
+    
+    abrirCrearItem,
+    cerrarItemModal,
+    abrirMovimiento,
+    cerrarMovimiento,
+    cerrarTodos,
   };
 }
