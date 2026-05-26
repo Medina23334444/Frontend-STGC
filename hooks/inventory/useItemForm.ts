@@ -1,22 +1,21 @@
 // hooks/inventory/useItemForm.ts
 import { useState, useEffect } from 'react';
-import { CrearInventarioItemFormData } from '@/types/inventory';
-// 1. IMPORTAR LOS ENUMS PARA LOS VALORES INICIALES
-import { TipoElemento, EstadoProducto, UnidadMedida } from '@/types/enums'; 
-import { CreateItemSchema } from '@/schemas/inventory.schem'; // Asegúrate de haber corregido el nombre a .schema.ts
+
+import { CrearInventarioItemFormData, InventarioItem } from '@/types/inventory';
+import { CreateItemSchema } from '@/schemas/inventory.schem';
+import { TipoElemento, EstadoProducto, UnidadMedida } from '@/types/enums';
 
 interface UseItemFormParams {
   isOpen: boolean;
-  onSubmit: (data: CrearInventarioItemFormData) => Promise<void>;
+  onSubmit: (data: CrearInventarioItemFormData) => Promise<InventarioItem>; 
   onClose: () => void;
 }
 
-// 2. USAR LOS ENUMS EN LUGAR DE STRINGS
 const baseFormValues: CrearInventarioItemFormData = {
   sku: '',
   nombre: '',
-  tipo: TipoElemento.INSUMO, 
-  estado: EstadoProducto.DISPONIBLE,
+  tipo: TipoElemento.INSUMO,            
+  estado: EstadoProducto.DISPONIBLE,   
   unidad_medida: UnidadMedida.QUINTALES,
   precio: 0,
   descripcion: '',
@@ -71,7 +70,7 @@ export function useItemForm({ isOpen, onSubmit, onClose }: UseItemFormParams) {
     setFieldErrors({});
 
     try {
-      await onSubmit(validation.data);
+      await onSubmit(validation.data as CrearInventarioItemFormData);
       onClose();
     } catch (submitError: unknown) {
       const message = submitError instanceof Error ? submitError.message : 'Error al guardar el ítem.';

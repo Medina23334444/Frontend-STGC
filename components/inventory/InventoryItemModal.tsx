@@ -1,15 +1,17 @@
 // components/inventory/InventoryItemModal.tsx
+
 'use client';
 
 import { FormField } from '@/components/shared/FormField';
 import { useItemForm } from '@/hooks/inventory/useItemForm';
-import { CrearInventarioItemFormData } from '@/types/inventory';
+import { CrearInventarioItemFormData, InventarioItem } from '@/types/inventory'; 
 import { TIPO_OPTIONS, ESTADO_OPTIONS, UNIDAD_OPTIONS } from '@/schemas/inventory.schem';
+import { TipoElemento, EstadoProducto, UnidadMedida } from '@/types/enums';
 
 interface InventoryItemModalProps {
-  isOpen: boolean;
-  onClose: () => void;
-  onSubmit: (data: CrearInventarioItemFormData) => Promise<void>;
+  readonly isOpen: boolean;
+  readonly onClose: () => void;
+  readonly onSubmit: (data: CrearInventarioItemFormData) => Promise<InventarioItem>; 
 }
 
 const inputClass = 'w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 outline-none transition-all text-sm';
@@ -29,8 +31,7 @@ export default function InventoryItemModal({ isOpen, onClose, onSubmit }: Invent
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4 sm:p-6">
-      <div className="bg-white rounded-2xl shadow-xl w-full max-w-lg overflow-hidden flex flex-col max-h-[90vh]">
-        {/* Header */}
+      <div className="bg-white rounded-2xl shadow-xl w-full max-w-lg overflow-hidden flex flex-col max-h-[90vh] animate-in fade-in zoom-in-95 duration-200">
         <div className="flex justify-between items-center p-5 border-b border-slate-100 bg-slate-50/50 shrink-0">
           <div>
             <h2 className="text-lg font-bold text-slate-800">Registrar Nuevo Ítem</h2>
@@ -47,20 +48,17 @@ export default function InventoryItemModal({ isOpen, onClose, onSubmit }: Invent
           </button>
         </div>
 
-        {/* Form */}
         <div className="p-5 overflow-y-auto max-h-[70vh] custom-scrollbar">
           <form noValidate onSubmit={handleSubmit} className="space-y-4">
             
-            {/* Error general */}
             {error && (
               <div className="p-3 rounded-lg bg-red-50 border border-red-200 text-red-700 text-sm">
                 {error}
               </div>
             )}
 
-            {/* SKU y Nombre */}
             <div className="grid grid-cols-2 gap-4">
-              <FormField label="SKU" required error={fieldErrors.sku}>
+              <FormField label="SKU *" error={fieldErrors.sku}>
                 <input
                   id="item-sku"
                   type="text"
@@ -71,7 +69,7 @@ export default function InventoryItemModal({ isOpen, onClose, onSubmit }: Invent
                 />
               </FormField>
               
-              <FormField label="Nombre" required error={fieldErrors.nombre}>
+              <FormField label="Nombre *" error={fieldErrors.nombre}>
                 <input
                   id="item-nombre"
                   type="text"
@@ -83,13 +81,12 @@ export default function InventoryItemModal({ isOpen, onClose, onSubmit }: Invent
               </FormField>
             </div>
 
-            {/* Tipo y Estado */}
             <div className="grid grid-cols-2 gap-4">
               <FormField label="Tipo" error={fieldErrors.tipo}>
                 <select
                   id="item-tipo"
                   value={form.tipo}
-                  onChange={(e) => updateField('tipo', e.target.value as CrearInventarioItemFormData['tipo'])}
+                  onChange={(e) => updateField('tipo', e.target.value as TipoElemento)}
                   className={inputClass}
                 >
                   {TIPO_OPTIONS.map((opt) => (
@@ -102,7 +99,7 @@ export default function InventoryItemModal({ isOpen, onClose, onSubmit }: Invent
                 <select
                   id="item-estado"
                   value={form.estado}
-                  onChange={(e) => updateField('estado', e.target.value as CrearInventarioItemFormData['estado'])}
+                  onChange={(e) => updateField('estado', e.target.value as EstadoProducto)}
                   className={inputClass}
                 >
                   {ESTADO_OPTIONS.map((opt) => (
@@ -112,13 +109,12 @@ export default function InventoryItemModal({ isOpen, onClose, onSubmit }: Invent
               </FormField>
             </div>
 
-            {/* Unidad y Precio */}
             <div className="grid grid-cols-2 gap-4">
               <FormField label="Unidad de Medida" error={fieldErrors.unidad_medida}>
                 <select
                   id="item-unidad"
                   value={form.unidad_medida}
-                  onChange={(e) => updateField('unidad_medida', e.target.value as CrearInventarioItemFormData['unidad_medida'])}
+                  onChange={(e) => updateField('unidad_medida', e.target.value as UnidadMedida)}
                   className={inputClass}
                 >
                   {UNIDAD_OPTIONS.map((opt) => (
@@ -127,7 +123,7 @@ export default function InventoryItemModal({ isOpen, onClose, onSubmit }: Invent
                 </select>
               </FormField>
 
-              <FormField label="Precio Unitario ($)" required error={fieldErrors.precio}>
+              <FormField label="Precio Unitario ($) *" error={fieldErrors.precio}>
                 <input
                   id="item-precio"
                   type="number"
@@ -135,13 +131,12 @@ export default function InventoryItemModal({ isOpen, onClose, onSubmit }: Invent
                   step="0.01"
                   placeholder="0.00"
                   value={form.precio || ''}
-                  onChange={(e) => updateField('precio', parseFloat(e.target.value) || 0)}
+                  onChange={(e) => updateField('precio', Number.parseFloat(e.target.value) || 0)}
                   className={inputClass}
                 />
               </FormField>
             </div>
 
-            {/* Descripción */}
             <FormField label="Descripción (Opcional)" error={fieldErrors.descripcion}>
               <textarea
                 id="item-descripcion"
@@ -153,7 +148,6 @@ export default function InventoryItemModal({ isOpen, onClose, onSubmit }: Invent
               />
             </FormField>
 
-            {/* Acciones */}
             <div className="flex justify-end gap-3 pt-4 mt-2 border-t border-slate-100">
               <button
                 type="button"

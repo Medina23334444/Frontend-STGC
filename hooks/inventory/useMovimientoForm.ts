@@ -2,11 +2,13 @@
 import { useState, useEffect } from 'react';
 import { MovimientoFormData, InventarioItem } from '@/types/inventory';
 import { RegistrarMovimientoSchema } from '@/schemas/inventory.schem';
+// 1. Importar el Enum
+import { TipoMovimiento } from '@/types/enums'; 
 
 interface UseMovimientoFormParams {
   isOpen: boolean;
   item: InventarioItem | null;
-  onSubmit: (data: MovimientoFormData) => Promise<void>;
+  onSubmit: (data: MovimientoFormData) => Promise<any>; // 2. Ajustado a Promise<any> para evitar errores de tipo de retorno
   onClose: () => void;
 }
 
@@ -14,7 +16,7 @@ export function useMovimientoForm({ isOpen, item, onSubmit, onClose }: UseMovimi
   const [form, setForm] = useState<MovimientoFormData>({
     item_id: '',
     cantidad: 1,
-    tipo: 'ENTRADA',
+    tipo: TipoMovimiento.ENTRADA, // 3. Usar el Enum aquí
     motivo: '',
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -27,7 +29,7 @@ export function useMovimientoForm({ isOpen, item, onSubmit, onClose }: UseMovimi
       setForm({
         item_id: item.id,
         cantidad: 1,
-        tipo: 'ENTRADA',
+        tipo: TipoMovimiento.ENTRADA, // 4. Usar el Enum aquí también
         motivo: '',
       });
       setError(null);
@@ -71,7 +73,8 @@ export function useMovimientoForm({ isOpen, item, onSubmit, onClose }: UseMovimi
     setFieldErrors({});
 
     try {
-      await onSubmit(validation.data);
+      // 5. Forzamos el casteo porque Zod ya valida que sea válido
+      await onSubmit(validation.data as MovimientoFormData);
       onClose();
     } catch (submitError: unknown) {
       const message = submitError instanceof Error 

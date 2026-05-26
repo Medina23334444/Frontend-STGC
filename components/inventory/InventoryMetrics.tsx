@@ -1,5 +1,4 @@
 // components/inventory/InventoryMetrics.tsx
-import React from 'react';
 
 interface InventoryMetricsProps {
   total: number;

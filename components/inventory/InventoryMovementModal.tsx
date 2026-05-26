@@ -1,17 +1,17 @@
-// components/inventory/InventoryMovementModal.tsx
 'use client';
 
 import { FormField } from '@/components/shared/FormField';
 import { useMovimientoForm } from '@/hooks/inventory/useMovimientoForm';
-import { InventarioItem, MovimientoFormData } from '@/types/inventory';
+import { InventarioItem, MovimientoFormData, MovimientoStock } from '@/types/inventory'; 
 import { MOVIMIENTO_OPTIONS } from '@/schemas/inventory.schem';
 
 interface InventoryMovementModalProps {
-  isOpen: boolean;
-  item: InventarioItem | null;
-  onClose: () => void;
-  onSubmit: (data: MovimientoFormData) => Promise<void>;
+  readonly isOpen: boolean;
+  readonly item: InventarioItem | null;
+  readonly onClose: () => void;
+  readonly onSubmit: (data: MovimientoFormData) => Promise<MovimientoStock>; 
 }
+
 
 const inputClass = 'w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 outline-none transition-all text-sm';
 
@@ -73,7 +73,7 @@ export default function InventoryMovementModal({ isOpen, item, onClose, onSubmit
 
             {/* Tipo y Cantidad */}
             <div className="grid grid-cols-2 gap-4">
-              <FormField label="Tipo de Movimiento" error={fieldErrors.tipo}>
+              <FormField label="Tipo de Movimiento *" error={fieldErrors.tipo}>
                 <select
                   id="mov-tipo"
                   value={form.tipo}
@@ -86,14 +86,14 @@ export default function InventoryMovementModal({ isOpen, item, onClose, onSubmit
                 </select>
               </FormField>
 
-              <FormField label="Cantidad" required error={fieldErrors.cantidad}>
+              <FormField label="Cantidad *" error={fieldErrors.cantidad}>
                 <input
                   id="mov-cantidad"
                   type="number"
                   min="0.01"
                   step="0.01"
                   value={form.cantidad}
-                  onChange={(e) => updateField('cantidad', parseFloat(e.target.value) || 0)}
+                  onChange={(e) => updateField('cantidad', Number.parseFloat(e.target.value) || 0)}
                   className={inputClass}
                 />
               </FormField>
@@ -112,7 +112,7 @@ export default function InventoryMovementModal({ isOpen, item, onClose, onSubmit
                     ? (item.cantidad + form.cantidad).toLocaleString()
                     : Math.max(0, item.cantidad - form.cantidad).toLocaleString()
                   }
-                  {item.unidad_medida.toLowerCase()}
+                  {' '}{item.unidad_medida.toLowerCase()}
                 </span>
                 {!isEntrada && form.cantidad > item.cantidad && (
                   <p className="text-xs mt-1 opacity-80">⚠️ La cantidad excede el stock actual</p>
@@ -121,7 +121,7 @@ export default function InventoryMovementModal({ isOpen, item, onClose, onSubmit
             )}
 
             {/* Motivo */}
-            <FormField label="Motivo del movimiento" required error={fieldErrors.motivo}>
+            <FormField label="Motivo del movimiento *" error={fieldErrors.motivo}>
               <input
                 id="mov-motivo"
                 type="text"

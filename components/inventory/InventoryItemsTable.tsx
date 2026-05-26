@@ -3,9 +3,17 @@
 
 import { InventarioItem } from '@/types/inventory';
 import { TipoElemento } from '@/types/enums';
-import { ESTADO_STYLES, ESTADO_LABELS, TIPO_STYLES, TIPO_LABELS, UNIDAD_LABELS, DEFAULT_ESTADO_STYLE, DEFAULT_TIPO_STYLE } from '@/schemas/inventory.schem';
+import { 
+  ESTADO_STYLES, 
+  ESTADO_LABELS, 
+  TIPO_STYLES, 
+  TIPO_LABELS, 
+  UNIDAD_LABELS, 
+  DEFAULT_ESTADO_STYLE, 
+  DEFAULT_TIPO_STYLE 
+} from '@/schemas/inventory.schem';
 
-// Iconos SVG ligeros (sin dependencia externa)
+// Iconos SVG
 const SearchIcon = () => (
   <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
     <circle cx="11" cy="11" r="8" />
@@ -28,16 +36,16 @@ const PlusIcon = () => (
 );
 
 interface InventoryItemsTableProps {
-  items: InventarioItem[];
-  loading: boolean;
-  busqueda: string;
-  setBusqueda: (v: string) => void;
-  filtroTipo: TipoElemento | 'TODOS';
-  setFiltroTipo: (v: TipoElemento | 'TODOS') => void;
-  tieneFiltrosActivos: boolean;
-  sinResultados: boolean;
-  contadores: { total: number; filtrados: number; mostrados: number };
-  onRegistrarMovimiento: (item: InventarioItem) => void;
+  readonly items: InventarioItem[];
+  readonly loading: boolean;
+  readonly busqueda: string;
+  readonly setBusqueda: (v: string) => void;
+  readonly filtroTipo: TipoElemento | 'TODOS';
+  readonly setFiltroTipo: (v: TipoElemento | 'TODOS') => void;
+  readonly tieneFiltrosActivos: boolean;
+  readonly sinResultados: boolean;
+  readonly contadores: { readonly total: number; readonly filtrados: number; readonly mostrados: number };
+  readonly onRegistrarMovimiento: (item: InventarioItem) => void;
 }
 
 export default function InventoryItemsTable({
@@ -53,8 +61,97 @@ export default function InventoryItemsTable({
   onRegistrarMovimiento,
 }: InventoryItemsTableProps) {
   
-  const getEstadoEstilo = (estado: string) => ESTADO_STYLES[estado] ?? DEFAULT_ESTADO_STYLE;
-  const getTipoEstilo = (tipo: string) => TIPO_STYLES[tipo] ?? DEFAULT_TIPO_STYLE;
+  const getEstadoEstilo = (estado: string) => ESTADO_STYLES[estado] || DEFAULT_ESTADO_STYLE;
+  const getTipoEstilo = (tipo: string) => TIPO_STYLES[tipo] || DEFAULT_TIPO_STYLE;
+
+  const renderTableContent = () => {
+    if (loading) {
+      return (
+        <tr>
+          <td colSpan={6} className="px-6 py-12 text-center text-slate-500">
+            <div className="flex flex-col items-center gap-2">
+              <RefreshIcon />
+              <span>Cargando inventario...</span>
+            </div>
+          </td>
+        </tr>
+      );
+    }
+
+    if (sinResultados) {
+      return (
+        <tr>
+          <td colSpan={6} className="px-6 py-12 text-center">
+            <div className="flex flex-col items-center gap-2 text-slate-400">
+              <svg className="w-10 h-10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
+                <circle cx="11" cy="11" r="8" />
+                <path d="m21 21-4.35-4.35" />
+              </svg>
+              <span className="font-medium">No se encontraron resultados</span>
+              <span className="text-xs">Intenta con otros términos de búsqueda</span>
+            </div>
+          </td>
+        </tr>
+      );
+    }
+
+    if (items.length === 0) {
+      return (
+        <tr>
+          <td colSpan={6} className="px-6 py-12 text-center text-slate-400">
+            <div className="flex flex-col items-center gap-2">
+              <svg className="w-10 h-10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
+                <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z" />
+              </svg>
+              <span className="font-medium">No hay ítems registrados</span>
+              <span className="text-xs">Comienza añadiendo un nuevo ítem al inventario</span>
+            </div>
+          </td>
+        </tr>
+      );
+    }
+
+    return items.map((item) => (
+      <tr key={item.id} className="hover:bg-slate-50/80 transition-colors group">
+        <td className="px-6 py-4">
+          <div className="font-medium text-slate-800">{item.nombre}</div>
+          <div className="text-xs text-slate-400 mt-0.5 font-mono">{item.sku}</div>
+        </td>
+        <td className="px-6 py-4">
+          <span className={`inline-flex px-2.5 py-1 rounded-md text-xs font-medium ${getTipoEstilo(item.tipo)}`}>
+            {TIPO_LABELS[item.tipo] || item.tipo}
+          </span>
+        </td>
+        <td className="px-6 py-4">
+          <div className="font-semibold text-slate-900">
+            {item.cantidad.toLocaleString()}
+          </div>
+          <div className="text-xs text-slate-400">
+            {UNIDAD_LABELS[item.unidad_medida] || item.unidad_medida}
+          </div>
+        </td>
+        <td className="px-6 py-4">
+          <span className="text-slate-600 font-medium">
+            ${item.precio.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+          </span>
+        </td>
+        <td className="px-6 py-4">
+          <span className={`inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium border ${getEstadoEstilo(item.estado)}`}>
+            {ESTADO_LABELS[item.estado] || item.estado}
+          </span>
+        </td>
+        <td className="px-6 py-4 text-right">
+          <button
+            onClick={() => onRegistrarMovimiento(item)}
+            className="inline-flex items-center justify-center px-3 py-1.5 text-xs font-medium text-emerald-700 bg-emerald-50 border border-emerald-200 rounded-lg hover:bg-emerald-100 transition-colors"
+          >
+            <PlusIcon />
+            <span className="ml-1.5">Movimiento</span>
+          </button>
+        </td>
+      </tr>
+    ));
+  };
 
   return (
     <div className="bg-white rounded-xl shadow-sm border border-slate-200/60 overflow-hidden">
@@ -80,9 +177,9 @@ export default function InventoryItemsTable({
             className="px-3 py-2 bg-white border border-slate-200 rounded-lg text-sm text-slate-600 font-medium focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all cursor-pointer"
           >
             <option value="TODOS">Todos los tipos</option>
-            <option value="INSUMO">Insumos</option>
-            <option value="PRODUCTO">Productos</option>
-            <option value="CAFE_PROCESADO">Café Procesado</option>
+            <option value={TipoElemento.INSUMO}>Insumos</option>
+            <option value={TipoElemento.PRODUCTO}>Productos</option>
+            <option value={TipoElemento.CAFE_PROCESADO}>Café Procesado</option>
           </select>
 
           {tieneFiltrosActivos && (
@@ -107,82 +204,7 @@ export default function InventoryItemsTable({
             </tr>
           </thead>
           <tbody className="divide-y divide-slate-100">
-            {loading ? (
-              <tr>
-                <td colSpan={6} className="px-6 py-12 text-center text-slate-500">
-                  <div className="flex flex-col items-center gap-2">
-                    <RefreshIcon />
-                    <span>Cargando inventario...</span>
-                  </div>
-                </td>
-              </tr>
-            ) : sinResultados ? (
-              <tr>
-                <td colSpan={6} className="px-6 py-12 text-center">
-                  <div className="flex flex-col items-center gap-2 text-slate-400">
-                    <svg className="w-10 h-10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
-                      <circle cx="11" cy="11" r="8" />
-                      <path d="m21 21-4.35-4.35" />
-                    </svg>
-                    <span className="font-medium">No se encontraron resultados</span>
-                    <span className="text-xs">Intenta con otros términos de búsqueda</span>
-                  </div>
-                </td>
-              </tr>
-            ) : items.length === 0 ? (
-              <tr>
-                <td colSpan={6} className="px-6 py-12 text-center text-slate-400">
-                  <div className="flex flex-col items-center gap-2">
-                    <svg className="w-10 h-10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
-                      <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z" />
-                    </svg>
-                    <span className="font-medium">No hay ítems registrados</span>
-                    <span className="text-xs">Comienza añadiendo un nuevo ítem al inventario</span>
-                  </div>
-                </td>
-              </tr>
-            ) : (
-              items.map((item) => (
-                <tr key={item.id} className="hover:bg-slate-50/80 transition-colors group">
-                  <td className="px-6 py-4">
-                    <div className="font-medium text-slate-800">{item.nombre}</div>
-                    <div className="text-xs text-slate-400 mt-0.5 font-mono">{item.sku}</div>
-                  </td>
-                  <td className="px-6 py-4">
-                    <span className={`inline-flex px-2.5 py-1 rounded-md text-xs font-medium ${getTipoEstilo(item.tipo)}`}>
-                      {TIPO_LABELS[item.tipo] ?? item.tipo}
-                    </span>
-                  </td>
-                  <td className="px-6 py-4">
-                    <div className="font-semibold text-slate-900">
-                      {item.cantidad.toLocaleString()}
-                    </div>
-                    <div className="text-xs text-slate-400">
-                      {UNIDAD_LABELS[item.unidad_medida] ?? item.unidad_medida}
-                    </div>
-                  </td>
-                  <td className="px-6 py-4">
-                    <span className="text-slate-600 font-medium">
-                      ${item.precio.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
-                    </span>
-                  </td>
-                  <td className="px-6 py-4">
-                    <span className={`inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium border ${getEstadoEstilo(item.estado)}`}>
-                      {ESTADO_LABELS[item.estado] ?? item.estado}
-                    </span>
-                  </td>
-                  <td className="px-6 py-4 text-right">
-                    <button
-                      onClick={() => onRegistrarMovimiento(item)}
-                      className="inline-flex items-center justify-center px-3 py-1.5 text-xs font-medium text-emerald-700 bg-emerald-50 border border-emerald-200 rounded-lg hover:bg-emerald-100 transition-colors"
-                    >
-                      <PlusIcon />
-                      <span className="ml-1.5">Movimiento</span>
-                    </button>
-                  </td>
-                </tr>
-              ))
-            )}
+            {renderTableContent()}
           </tbody>
         </table>
       </div>
