@@ -20,6 +20,7 @@ export const editUserSchema = sharedUserSchema.extend({
     .regex(/\d/, 'Debe contener al menos un número.')
     .regex(/[@$!%*?&]/, 'Debe contener un carácter especial (@$!%*?&).')
     .regex(/^[A-Za-z\d@$!%*?&]+$/, 'Contiene caracteres inválidos.')
+    .or(z.literal('').transform(() => undefined)) 
     .optional(),
 });
 

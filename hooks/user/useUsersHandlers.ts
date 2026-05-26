@@ -46,6 +46,7 @@ export function useUsersHandlers() {
       throw error;
     }
   }, [updateUser]);
+  
 
 
   const handleDeleteUser = useCallback(async (userId: string) => {

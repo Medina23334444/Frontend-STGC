@@ -1,30 +1,60 @@
 // hooks/users/useUserModal.ts
-import { useEffect } from 'react'; 
-import { useForm } from 'react-hook-form';
+import { useEffect, useMemo } from 'react';
+import { useForm, UseFormRegister, UseFormHandleSubmit, UseFormSetValue, UseFormWatch, FieldErrors } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { editUserSchema, registerSchema, EditFormInputs, RegisterFormInputs } from '@/schemas/user.schema';
+import {
+  editUserSchema,
+  registerSchema,
+  EditFormInputs,
+  RegisterFormInputs,
+} from '@/schemas/user.schema';
 import { User } from '@/types/user';
 
+type FormInputs = Omit<RegisterFormInputs, 'password'> & { password?: string };
+
 interface UseUserModalReturn {
-  readonly register: ReturnType<typeof useForm<RegisterFormInputs | EditFormInputs>>['register'];
-  readonly handleSubmit: ReturnType<typeof useForm<RegisterFormInputs | EditFormInputs>>['handleSubmit'];
-  readonly errors: ReturnType<typeof useForm<RegisterFormInputs | EditFormInputs>>['formState']['errors'];
+  readonly register: UseFormRegister<FormInputs>;
+  readonly handleSubmit: UseFormHandleSubmit<FormInputs>;
+  readonly errors: FieldErrors<FormInputs>;
   readonly isSubmitting: boolean;
-  readonly handleFormSubmit: (datos: RegisterFormInputs | EditFormInputs) => Promise<void>;
+  readonly handleFormSubmit: (data: FormInputs) => Promise<void>;
   readonly handleCancel: () => void;
-  readonly setValue: ReturnType<typeof useForm<RegisterFormInputs | EditFormInputs>>['setValue'];
-  readonly watch: ReturnType<typeof useForm<RegisterFormInputs | EditFormInputs>>['watch'];
-  readonly isEditMode: boolean; // 4. Agregado a la interfaz
+  readonly setValue: UseFormSetValue<FormInputs>;
+  readonly watch: UseFormWatch<FormInputs>;
+  readonly isEditMode: boolean;
 }
 
+const EDIT_DEFAULTS: EditFormInputs = {
+  phone_number: '',
+  email: '',
+  role_name: 'CAPATAZ',
+  status: 'ACTIVO',
+  password: '',
+};
+
+const REGISTER_DEFAULTS: RegisterFormInputs = {
+  first_name: '',
+  last_name: '',
+  identifier: '',
+  phone_number: '',
+  role_name: 'CAPATAZ',
+  status: 'ACTIVO',
+  email: '',
+  password: '',
+};
+
 export function useUserModal(
-  onSubmit: (datos: RegisterFormInputs | EditFormInputs) => Promise<void>,
+  onSubmit: (data: FormInputs) => Promise<void>,
   onSuccess: () => void,
   onClose: () => void,
-  initialData?: User | null
+  initialData?: User | null,
 ): UseUserModalReturn {
-
   const isEditMode = !!initialData;
+
+  const resolver = useMemo(
+    () => zodResolver(isEditMode ? editUserSchema : registerSchema),
+    [isEditMode],
+  );
 
   const {
     register,
@@ -32,43 +62,29 @@ export function useUserModal(
     reset,
     formState: { errors, isSubmitting },
     setValue,
-    watch
-  } = useForm<RegisterFormInputs | EditFormInputs>({
-    resolver: zodResolver(isEditMode ? editUserSchema : registerSchema),
-    defaultValues: {
-      phone_number: '',
-      role_name: 'CAPATAZ',
-      status: 'ACTIVO',
-      email: '',
-    },
+    watch,
+  } = useForm<FormInputs>({
+    resolver,
+    defaultValues: isEditMode ? EDIT_DEFAULTS : REGISTER_DEFAULTS,
   });
 
   useEffect(() => {
     if (initialData) {
       reset({
-        phone_number: initialData.phone_number || '',
-        email: initialData.email || '',
-        role_name: initialData.role?.name || 'CAPATAZ',
-        status: initialData.status || 'ACTIVO',
+        phone_number: initialData.phone_number ?? '',
+        email: initialData.email ?? '',
+        role_name: (initialData.role?.name ?? 'CAPATAZ') as EditFormInputs['role_name'],
+        status: initialData.status ?? 'ACTIVO',
         password: '',
       });
     } else {
-      reset({
-        first_name: '',
-        last_name: '',
-        identifier: '',
-        phone_number: '',
-        role_name: 'CAPATAZ',
-        status: 'ACTIVO',
-        email: '',
-        password: '',
-      });
+      reset(REGISTER_DEFAULTS);
     }
   }, [initialData, reset]);
 
-  const handleFormSubmit = async (datos: RegisterFormInputs | EditFormInputs) => {
+  const handleFormSubmit = async (data: FormInputs) => {
     try {
-      await onSubmit(datos);
+      await onSubmit(data);
       reset();
       onSuccess();
       onClose();
@@ -91,6 +107,6 @@ export function useUserModal(
     handleCancel,
     setValue,
     watch,
-    isEditMode 
+    isEditMode,
   };
 }
