@@ -1,7 +1,9 @@
 // hooks/inventory/useItemForm.ts
 import { useState, useEffect } from 'react';
 import { CrearInventarioItemFormData } from '@/types/inventory';
-import { CreateItemSchema } from '@/schemas/inventory.schem';
+// 1. IMPORTAR LOS ENUMS PARA LOS VALORES INICIALES
+import { TipoElemento, EstadoProducto, UnidadMedida } from '@/types/enums'; 
+import { CreateItemSchema } from '@/schemas/inventory.schem'; // Asegúrate de haber corregido el nombre a .schema.ts
 
 interface UseItemFormParams {
   isOpen: boolean;
@@ -9,12 +11,13 @@ interface UseItemFormParams {
   onClose: () => void;
 }
 
+// 2. USAR LOS ENUMS EN LUGAR DE STRINGS
 const baseFormValues: CrearInventarioItemFormData = {
   sku: '',
   nombre: '',
-  tipo: 'INSUMO',
-  estado: 'DISPONIBLE',
-  unidad_medida: 'QUINTALES',
+  tipo: TipoElemento.INSUMO, 
+  estado: EstadoProducto.DISPONIBLE,
+  unidad_medida: UnidadMedida.QUINTALES,
   precio: 0,
   descripcion: '',
 };
@@ -25,7 +28,6 @@ export function useItemForm({ isOpen, onSubmit, onClose }: UseItemFormParams) {
   const [error, setError] = useState<string | null>(null);
   const [fieldErrors, setFieldErrors] = useState<Partial<Record<keyof CrearInventarioItemFormData, string>>>({});
 
-  // Resetear formulario al abrir/cerrar
   useEffect(() => {
     if (!isOpen) {
       setForm(baseFormValues);
@@ -39,7 +41,6 @@ export function useItemForm({ isOpen, onSubmit, onClose }: UseItemFormParams) {
     value: CrearInventarioItemFormData[K]
   ) => {
     setForm((current) => ({ ...current, [field]: value }));
-    // Limpiar error del campo al editar
     setFieldErrors((current) => {
       const next = { ...current };
       delete next[field];
@@ -50,7 +51,6 @@ export function useItemForm({ isOpen, onSubmit, onClose }: UseItemFormParams) {
   const handleSubmit = async (event: React.SyntheticEvent<HTMLFormElement>) => {
     event.preventDefault();
 
-    // Validar con Zod
     const validation = CreateItemSchema.safeParse(form);
 
     if (!validation.success) {
