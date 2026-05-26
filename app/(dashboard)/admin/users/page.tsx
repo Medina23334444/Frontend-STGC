@@ -7,7 +7,8 @@ import { useUsersHandlers } from '@/hooks/user/useUsersHandlers';
 import { UsersTable } from '@/components/admin/UsersTable';
 import { PageBackground } from '@/components/shared/PageBackground';
 import { UsersError } from '@/components/admin/UsersError';
-import {Pagination} from '@/components/shared/Pagination';
+import { ConfirmModal } from '@/components/shared/ConfirmModal'; // ✅ Asegúrate de importar esto
+import { Pagination } from '@/components/shared/Pagination';
 
 export default function AdminUsersPage() {
   const {
@@ -16,6 +17,7 @@ export default function AdminUsersPage() {
     error,
     fetchUsers,
     getStatusBadge,
+    getStatusLabel,
     formatUserName,
     
     isCreateModalOpen,
@@ -27,6 +29,9 @@ export default function AdminUsersPage() {
     closeEditModal,
     userToEdit,
 
+    isStatusModalOpen,     
+    closeStatusModal,      
+    statusChangeData,     
     openStatusModal,
 
     currentPage,
@@ -34,7 +39,7 @@ export default function AdminUsersPage() {
     totalPages,
   } = useUsers();
 
-  const { handleCreateUser, handleEditUser } = useUsersHandlers();
+  const { handleCreateUser, handleEditUser, handleStatusChange } = useUsersHandlers(); // ✅ No olvides handleStatusChange
 
   if (error) return <UsersError error={error} />;
 
@@ -71,7 +76,8 @@ export default function AdminUsersPage() {
           onSuccess={fetchUsers}
           onSubmit={handleCreateUser}
         />
-        {/* Modal de Confirmación de Cambio de Estado */}
+
+        {/* Modal para Editar Usuario */}
         {isEditModalOpen && userToEdit && (
           <UserModal
             key={userToEdit.id}
@@ -85,6 +91,27 @@ export default function AdminUsersPage() {
             }}
           />
         )}
+
+        {/*EL MODAL DE CONFIRMACIÓN */}
+        <ConfirmModal
+          isOpen={isStatusModalOpen}
+          onClose={closeStatusModal}
+          variant="warning"
+          icon="warning"
+          title="¿Cambiar estado del usuario?"
+          description={
+            <p>
+              Estás a punto de cambiar el estado de <strong>{statusChangeData?.user.email}</strong> a <strong className="text-sky-600">{statusChangeData?.newStatus && getStatusLabel(statusChangeData.newStatus)}</strong>. ¿Estás seguro?
+            </p>
+          }
+          confirmText="Sí, cambiar"
+          onConfirm={async () => {
+            if (statusChangeData) {
+              await handleStatusChange(statusChangeData.user.id, statusChangeData.newStatus);
+              await fetchUsers(); 
+            }
+          }}
+        />
       </div>
     </div>
   );
