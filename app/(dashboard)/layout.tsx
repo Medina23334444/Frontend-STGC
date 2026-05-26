@@ -101,14 +101,14 @@ export default function DashboardLayout({
             
               <div className="pt-4 mt-4 border-t border-slate-100 space-y-1.5">
                 <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider px-3 mb-2">Seguridad</p>
-                {/* Control de roles basado en el requerimiento del negocio */}
+                
                 {(user?.role.name === 'ADMIN' || user?.role.name === 'GERENTE_GENERAL') && (
                   <>
                     <Link href="/admin/users" className={getNavLinkClass('/admin/users')}>
                       <span className="material-symbols-outlined text-xl">group</span>
                       <span>Gestionar Personal</span>
                     </Link>
-                    <Link href="/admin/logs" className={getNavLinkClass('/admin/logs')}>
+                    <Link href="/admin/audit" className={getNavLinkClass('/admin/audit')}>
                       <span className="material-symbols-outlined text-xl">receipt_long</span>
                       <span>Logs de Auditoría</span>
                     </Link>

@@ -33,3 +33,14 @@ export interface MovimientoFormData {
   motivo: string;
   lote_id?: string | null;
 }
+
+export interface CrearInventarioItemFormData {
+  sku: string;
+  nombre: string;
+  tipo: TipoElemento;
+  estado: EstadoProducto;
+  unidad_medida: UnidadMedida;
+  precio: number;
+  descripcion?: string | null;
+  fecha_caducidad?: string | null;
+}

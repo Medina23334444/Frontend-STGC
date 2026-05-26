@@ -4,13 +4,12 @@ import { cookies } from 'next/headers';
 export async function POST(req: Request) {
   try {
     const body = await req.json();
-    const baseUrl = process.env.AUTH_SERVICE_URL; // ✅ Seguridad: Variable de entorno protegida en el servidor
+    const baseUrl = process.env.AUTH_SERVICE_URL; 
 
     if (!baseUrl) {
       throw new Error('La variable de entorno AUTH_SERVICE_URL no está configurada');
     }
 
-    // 1. Extraer la cookie HttpOnly que Next.js guardó durante el login
     const cookieStore = await cookies();
     const token = cookieStore.get('stgc_token')?.value;
 
@@ -18,25 +17,22 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: 'No tienes autorización. La sesión expiró.' }, { status: 401 });
     }
 
-    // 2. Enviar petición al backend de Python inyectando el token como Bearer
+
     const res = await fetch(`${baseUrl}/auth/register`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': `Bearer ${token}` // Aquí pasamos el token de forma segura
+        'Authorization': `Bearer ${token}`
       },
       body: JSON.stringify(body),
     });
 
     if (!res.ok) {
-      // Intentamos capturar el mensaje de error que envía el backend
       const errorData = await res.json().catch(() => null);
       
-      // FastAPI 422 arroja 'detail' como un array de objetos
       let errorMessage = 'Error al conectar con el servidor de autenticación';
       if (errorData?.detail) {
         if (Array.isArray(errorData.detail)) {
-          // Extraemos el campo y el mensaje del error de validación
           errorMessage = errorData.detail.map((err: any) => `${err.loc?.join('.')}: ${err.msg}`).join(', ');
         } else if (typeof errorData.detail === 'string') {
           errorMessage = errorData.detail;
