@@ -1,5 +1,4 @@
 // types/enums.ts
-
 export enum TipoElemento {
   INSUMO = 'INSUMO',
   PRODUCTO = 'PRODUCTO',

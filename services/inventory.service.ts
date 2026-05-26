@@ -9,22 +9,22 @@ import {
 
 export const inventoryService = {
   async getItems(): Promise<InventarioItem[]> {
-    return await apiFetch('/inventory');
+    return await apiFetch('/inventory/items'); 
   },
 
   async getItemById(id: string): Promise<InventarioItem> {
-    return await apiFetch(`/inventory/${id}`);
+    return await apiFetch(`/inventory/items/${id}`);
   },
 
   async createItem(data: CrearInventarioItemFormData): Promise<InventarioItem> {
-    return await apiFetch('/inventory', { 
+    return await apiFetch('/inventory/items', { 
       method: 'POST', 
       body: JSON.stringify(data) 
     });
   },
 
   async registrarMovimiento(data: MovimientoFormData): Promise<MovimientoStock> {
-    return await apiFetch('/inventory/movements', { 
+    return await apiFetch('/inventory/movimientos', { 
       method: 'POST', 
       body: JSON.stringify(data) 
     });

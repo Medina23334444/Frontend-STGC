@@ -12,8 +12,8 @@ export interface InventarioItem {
   precio: number;
   descripcion?: string | null;
   fecha_caducidad?: string | null;
-  created_at: string;
-  updated_at: string;
+  created_at?: string;
+  updated_at?: string;
 }
 
 export interface MovimientoStock {
