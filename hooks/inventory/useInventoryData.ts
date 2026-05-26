@@ -4,56 +4,39 @@ import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { 
   InventarioItem, 
   CrearInventarioItemFormData, 
-  MovimientoFormData, 
-  MovimientoStock 
+  MovimientoFormData 
 } from '@/types/inventory';
 import { inventoryService } from '@/services/inventory.service';
-import { ApiError } from '@/lib/errors/ApiErrors';
 
 export function useInventoryData() {
   const queryClient = useQueryClient();
 
-  const query = useQuery<InventarioItem[], ApiError>({
+  const { data: items = [], isLoading, isError, error, refetch } = useQuery({
     queryKey: ['inventory-items'],
-    queryFn: async () => {
-      try {
-        return await inventoryService.getItems();
-      } catch (err) {
-        throw err instanceof ApiError 
-          ? err 
-          : new ApiError(500, 'Error al obtener ítems de inventario');
-      }
-    },
+    queryFn: inventoryService.getItems,
   });
 
-  const createItem = useCallback(async (data: CrearInventarioItemFormData): Promise<InventarioItem> => {
+  const createItem = useCallback(async (data: CrearInventarioItemFormData) => {
     const newItem = await inventoryService.createItem(data);
-    
     queryClient.setQueryData<InventarioItem[]>(['inventory-items'], (current) => {
       if (!current) return [newItem];
       return [...current, newItem];
     });
-    
     return newItem;
   }, [queryClient]);
 
-  const registrarMovimiento = useCallback(async (data: MovimientoFormData): Promise<MovimientoStock> => {
+  const registrarMovimiento = useCallback(async (data: MovimientoFormData) => {
     const movimiento = await inventoryService.registrarMovimiento(data);
-    // Invalidamos para obtener las cantidades actualizadas del backend
+    // Invalidar para forzar refetch y actualizar stock
     await queryClient.invalidateQueries({ queryKey: ['inventory-items'] });
     return movimiento;
   }, [queryClient]);
 
-  const refetch = useCallback(async () => {
-    await query.refetch();
-  }, [query]);
-
   return {
-    items: query.data ?? [],
-    isLoading: query.isPending,
-    isError: query.isError,
-    error: query.error,
-    
+    items,
+    isLoading,
+    isError,
+    error,
     createItem,
     registrarMovimiento,
     refetch,
