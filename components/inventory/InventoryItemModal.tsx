@@ -130,8 +130,8 @@ export default function InventoryItemModal({ isOpen, onClose, onSubmit }: Invent
                   min="0"
                   step="0.01"
                   placeholder="0.00"
-                  value={form.precio || ''}
-                  onChange={(e) => updateField('precio', Number.parseFloat(e.target.value) || 0)}
+                  value={form.precio === 0 ? '' : form.precio} // <-- Mejor manejo del cero
+                  onChange={(e) => updateField('precio', e.target.value === '' ? 0 : Number.parseFloat(e.target.value))}
                   className={inputClass}
                 />
               </FormField>

@@ -18,7 +18,7 @@ const baseFormValues: CrearInventarioItemFormData = {
   estado: EstadoProducto.DISPONIBLE,   
   unidad_medida: UnidadMedida.QUINTALES,
   precio: 0,
-  descripcion: '',
+  descripcion: null,
 };
 
 export function useItemForm({ isOpen, onSubmit, onClose }: UseItemFormParams) {

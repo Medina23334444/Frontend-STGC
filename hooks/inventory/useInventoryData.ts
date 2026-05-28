@@ -7,6 +7,7 @@ import {
   MovimientoFormData 
 } from '@/types/inventory';
 import { inventoryService } from '@/services/inventory.service';
+import { toast } from 'sonner';
 
 export function useInventoryData() {
   const queryClient = useQueryClient();
@@ -17,19 +18,32 @@ export function useInventoryData() {
   });
 
   const createItem = useCallback(async (data: CrearInventarioItemFormData) => {
-    const newItem = await inventoryService.createItem(data);
-    queryClient.setQueryData<InventarioItem[]>(['inventory-items'], (current) => {
-      if (!current) return [newItem];
-      return [...current, newItem];
-    });
-    return newItem;
+    try {
+      const newItem = await inventoryService.createItem(data);
+      queryClient.setQueryData<InventarioItem[]>(['inventory-items'], (current) => {
+        if (!current) return [newItem];
+        return [...current, newItem];
+      });
+      toast.success('Ítem creado exitosamente');
+      return newItem;
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : 'Error al crear el ítem.';
+      toast.error(message);
+      throw err;
+    }
   }, [queryClient]);
 
   const registrarMovimiento = useCallback(async (data: MovimientoFormData) => {
-    const movimiento = await inventoryService.registrarMovimiento(data);
-    // Invalidar para forzar refetch y actualizar stock
-    await queryClient.invalidateQueries({ queryKey: ['inventory-items'] });
-    return movimiento;
+    try {
+      const movimiento = await inventoryService.registrarMovimiento(data);
+      await queryClient.invalidateQueries({ queryKey: ['inventory-items'] });
+      toast.success('Movimiento registrado exitosamente');
+      return movimiento;
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : 'Error al registrar movimiento.';
+      toast.error(message);
+      throw err;
+    }
   }, [queryClient]);
 
   return {

@@ -63,13 +63,6 @@ export default function InventoryMovementModal({ isOpen, item, onClose, onSubmit
         {/* Form */}
         <div className="p-5 overflow-y-auto max-h-[60vh] custom-scrollbar">
           <form noValidate onSubmit={handleSubmit} className="space-y-4">
-            
-            {/* Error general */}
-            {error && (
-              <div className="p-3 rounded-lg bg-red-50 border border-red-200 text-red-700 text-sm">
-                {error}
-              </div>
-            )}
 
             {/* Tipo y Cantidad */}
             <div className="grid grid-cols-2 gap-4">

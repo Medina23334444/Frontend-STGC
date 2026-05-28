@@ -40,6 +40,5 @@ export function consumeFlashToast(key = DEFAULT_FLASH_TOAST_KEY): void {
 
     toast.success(parsed.message);
   } catch {
-    // Ignore malformed payloads
   }
 }

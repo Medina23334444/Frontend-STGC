@@ -2,13 +2,12 @@
 import { useState, useEffect } from 'react';
 import { MovimientoFormData, InventarioItem } from '@/types/inventory';
 import { RegistrarMovimientoSchema } from '@/schemas/inventory.schem';
-// 1. Importar el Enum
 import { TipoMovimiento } from '@/types/enums'; 
 
 interface UseMovimientoFormParams {
   isOpen: boolean;
   item: InventarioItem | null;
-  onSubmit: (data: MovimientoFormData) => Promise<any>; // 2. Ajustado a Promise<any> para evitar errores de tipo de retorno
+  onSubmit: (data: MovimientoFormData) => Promise<any>; 
   onClose: () => void;
 }
 
@@ -16,20 +15,19 @@ export function useMovimientoForm({ isOpen, item, onSubmit, onClose }: UseMovimi
   const [form, setForm] = useState<MovimientoFormData>({
     item_id: '',
     cantidad: 1,
-    tipo: TipoMovimiento.ENTRADA, // 3. Usar el Enum aquí
+    tipo: TipoMovimiento.ENTRADA, 
     motivo: '',
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [fieldErrors, setFieldErrors] = useState<Partial<Record<keyof MovimientoFormData, string>>>({});
 
-  // Inicializar formulario con el ítem seleccionado
   useEffect(() => {
     if (isOpen && item) {
       setForm({
         item_id: item.id,
         cantidad: 1,
-        tipo: TipoMovimiento.ENTRADA, // 4. Usar el Enum aquí también
+        tipo: TipoMovimiento.ENTRADA, 
         motivo: '',
       });
       setError(null);
@@ -52,7 +50,6 @@ export function useMovimientoForm({ isOpen, item, onSubmit, onClose }: UseMovimi
   const handleSubmit = async (event: React.SyntheticEvent<HTMLFormElement>) => {
     event.preventDefault();
 
-    // Validar con Zod
     const validation = RegistrarMovimientoSchema.safeParse(form);
 
     if (!validation.success) {
@@ -73,7 +70,6 @@ export function useMovimientoForm({ isOpen, item, onSubmit, onClose }: UseMovimi
     setFieldErrors({});
 
     try {
-      // 5. Forzamos el casteo porque Zod ya valida que sea válido
       await onSubmit(validation.data as MovimientoFormData);
       onClose();
     } catch (submitError: unknown) {
