@@ -36,9 +36,6 @@ export const UNIDAD_LABELS: Record<string, string> = {
   QUINTALES: 'Quintales',
   ARROBAS: 'Arrobas',
   LIBRAS: 'Libras',
-  LITROS: 'Litros',
-  UNIDADES: 'Unidades',
-  KILOS: 'Kilos',
 } as const;
 
 // --- Opciones para selects ---
@@ -60,9 +57,6 @@ export const UNIDAD_OPTIONS = [
   { value: 'QUINTALES', label: 'Quintales' },
   { value: 'ARROBAS', label: 'Arrobas' },
   { value: 'LIBRAS', label: 'Libras' },
-  { value: 'LITROS', label: 'Litros' },
-  { value: 'UNIDADES', label: 'Unidades' },
-  { value: 'KILOS', label: 'Kilos' },
 ] as const;
 
 export const MOVIMIENTO_OPTIONS = [

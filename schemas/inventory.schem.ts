@@ -58,9 +58,6 @@ export const UNIDAD_LABELS: Record<string, string> = {
   [UnidadMedida.QUINTALES]: 'Quintales',
   [UnidadMedida.ARROBAS]: 'Arrobas',
   [UnidadMedida.LIBRAS]: 'Libras',
-  [UnidadMedida.LITROS]: 'Litros',
-  [UnidadMedida.UNIDADES]: 'Unidades',
-  [UnidadMedida.KILOS]: 'Kilos',
 };
 
 export const DEFAULT_ESTADO_STYLE = 'bg-gray-50 text-gray-700 border-gray-200/80';
@@ -84,9 +81,6 @@ export const UNIDAD_OPTIONS = [
   { value: UnidadMedida.QUINTALES, label: 'Quintales' },
   { value: UnidadMedida.ARROBAS, label: 'Arrobas' },
   { value: UnidadMedida.LIBRAS, label: 'Libras' },
-  { value: UnidadMedida.LITROS, label: 'Litros' },
-  { value: UnidadMedida.UNIDADES, label: 'Unidades' },
-  { value: UnidadMedida.KILOS, label: 'Kilos' },
 ];
 
 export const MOVIMIENTO_OPTIONS = [
